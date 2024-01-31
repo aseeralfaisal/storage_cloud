@@ -1,0 +1,12 @@
+.listItemStyle {
+  display: flex;
+  padding: 10px;
+  gap: 10px;
+  font-size: 14px;
+  align-items: center;
+}
+
+.listItemStyle:hover {
+  background-color: #ddd;
+  cursor: pointer;
+}

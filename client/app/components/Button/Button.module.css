@@ -1,0 +1,11 @@
+.container {
+  width: fit-content;
+  background: none;
+  outline: 1px solid #777;
+  font-weight: 600;
+  border: none;
+  font-size: 14px;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+}

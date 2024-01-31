@@ -1,0 +1,44 @@
+.container {
+  display: flex;
+  background-color: #e9eef6;
+  height: 46px;
+  padding: 20px;
+  align-items: center;
+  border-radius: 26px;
+  width: 772px;
+  justify-content: space-between;
+  transition: ease-in-out 0.2s all;
+}
+
+.container:active,
+.container:focus,
+.container:focus-within,
+.container:focus-visible {
+  background-color: #ffffff;
+  box-shadow: 0 1px 1px 0 rgba(65, 69, 73, .3), 0 1px 3px 1px rgba(65, 69, 73, .15);
+}
+
+.inputFieldWrapper {
+  display: flex;
+  margin-left: 56px;
+}
+
+.input {
+  border: none;
+  background: none;
+  font-size: 16px;
+  color: #333333;
+  width: 100%;
+  margin-left: 16px;
+}
+
+.input::placeholder {
+  color: #333333;
+}
+
+.input:focus,
+.input:focus-visible,
+.input:active {
+  border: none;
+  outline: none;
+}

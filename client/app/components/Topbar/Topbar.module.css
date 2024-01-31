@@ -1,0 +1,18 @@
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 8px 24px;
+}
+
+.dlogo {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.driveLabel {
+  font-size: 22px;
+  color: #444746;
+  font-family: 'Open sans', sans-serif;
+}

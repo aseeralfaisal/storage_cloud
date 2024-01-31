@@ -1,0 +1,24 @@
+.navbarWrapper {
+  position: absolute;
+  left: 16px;
+  width: 256px;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  border-radius: 14px;
+  cursor: pointer;
+  padding: 4px 20px;
+}
+
+.navItem:hover {
+  background-color: #C2E7FF;
+}
+
+.navText {
+  font-size: 14px;
+  color: #001D35;
+  font-weight: 400;
+}
