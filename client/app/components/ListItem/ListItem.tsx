@@ -1,4 +1,4 @@
-import styles from './ListItem.module.css'; // Import your styles
+import styles from './ListItem.module.css';
 import MaterialSymbolIcon from '../MaterialSymbolIcon/MaterialSymbolIcon';
 import { ListItemProps } from './ListItem.type'
 

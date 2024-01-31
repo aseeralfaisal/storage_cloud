@@ -20,7 +20,7 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const hashPass = yield bcrypt.hash(password, salt);
         const create = yield prisma.user.create({
             data: {
-                name,
+                name: name ? name : "",
                 password: hashPass,
                 email,
             },

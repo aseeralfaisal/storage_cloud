@@ -10,7 +10,7 @@ const createFolder = async (req: Request, res: Response) => {
   try {
     const { userId, name, path, directoryId } = req.body;
 
-    const user = await prisma.user.findFirst({
+    const user = await prisma.user.findUnique({
       where: {
         id: userId,
       },
@@ -19,10 +19,11 @@ const createFolder = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-    const folderData = {
+    const folderData:
+      { name: string, path: string, userId: number, directoryId: number } = {
       name,
       path,
-      ownerId: user.id,
+      userId: user.id,
       directoryId: +directoryId,
     };
 
@@ -39,36 +40,41 @@ const createFolder = async (req: Request, res: Response) => {
 
 const getFolders = async (req: Request, res: Response) => {
   try {
-    const directoryId = req.query.directoryId;
+    const { directoryId, userId } = req.query
+    if (!directoryId || !userId) return;
+    const userIdInt = +userId as number;
+    const directoryIdInt = +directoryId as number;
 
     let resp;
     if (directoryId) {
       resp = await prisma.folder.findMany({
         where: {
-          directoryId: +directoryId,
+          directoryId: directoryIdInt,
+          userId: userIdInt
         },
 
       });
     } else {
       resp = await prisma.folder.findMany({
         where: {
-          ownerId: 1
+          userId: userIdInt
         },
       });
     }
 
     res.json(resp);
+
   } catch (error) {
     res.status(404).json({ error });
   }
 };
 const deleteFolder = async (req: Request, res: Response) => {
   try {
-    const folderId = +req.body.id;
+    const id = req.body.id;
 
     const existingFolder = await prisma.folder.findUnique({
       where: {
-        id: folderId,
+        id,
       },
     });
 
@@ -78,7 +84,7 @@ const deleteFolder = async (req: Request, res: Response) => {
 
     const deletedFolder = await prisma.folder.delete({
       where: {
-        id: folderId,
+        id,
       },
     });
 
@@ -95,7 +101,7 @@ const updateFolder = async (req: Request, res: Response) => {
 
     const existingFolder = await prisma.folder.findUnique({
       where: {
-        id: +id,
+        id,
       },
     });
 
@@ -105,11 +111,11 @@ const updateFolder = async (req: Request, res: Response) => {
 
     const updatedFolder = await prisma.folder.update({
       where: {
-        id: +id,
+        id,
       },
       data: {
         name,
-        directoryId: +directoryId
+        directoryId
       },
     });
 

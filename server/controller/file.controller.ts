@@ -1,15 +1,13 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
-import { getDownloadURL, getStorage } from 'firebase-admin/storage';
-import cloudStorage from '../config/storageConfig.js';
 
 const prisma = new PrismaClient()
-const bucket = cloudStorage.bucket();
 
 const getFile = async (req: Request, res: Response) => {
   try {
+    const { directoryId, userId } = req.query
 
-    const directoryId = req.query?.directoryId;
+    if (!directoryId || !userId) return;
 
     let resp;
     if (directoryId) {
@@ -21,7 +19,7 @@ const getFile = async (req: Request, res: Response) => {
     } else {
       resp = await prisma.file.findMany({
         where: {
-          ownerId: 1
+          userId: +userId
         }
       })
     }
@@ -29,13 +27,13 @@ const getFile = async (req: Request, res: Response) => {
     res.json(resp);
 
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error });
   }
 }
 
 const createFile = async (req: Request, res: Response) => {
   try {
-    const { name, size, type, path, ownerId, directoryId } = req.body;
+    const { name, size, type, path, userId, directoryId } = req.body;
 
     const resp = await prisma.file.create({
       data: {
@@ -43,7 +41,7 @@ const createFile = async (req: Request, res: Response) => {
         size,
         type,
         path,
-        ownerId,
+        userId,
         directoryId: +directoryId,
       },
     });

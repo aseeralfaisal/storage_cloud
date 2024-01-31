@@ -5,12 +5,14 @@ import styles from './auth.module.css';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import Api from '../service/Api.interceptor';
+import { useAppSelector } from '../store/hooks';
 
 const AuthPage: React.FC = () => {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isRegisterMode, setRegisterMode] = useState(false);
+  const currDirectoryId = useAppSelector(state => state.slice.currDirectoryId)
 
   const handleRegisterLinkClick = () => {
     setRegisterMode(true);
@@ -34,7 +36,7 @@ const AuthPage: React.FC = () => {
       Cookies.set('userId', userId)
 
       if (response.status === 200) {
-        router.push('/view/1')
+        router.push(`/view/${currDirectoryId}`);
       }
     } catch (error) {
       console.error(error)

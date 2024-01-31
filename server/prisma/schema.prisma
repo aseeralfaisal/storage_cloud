@@ -12,7 +12,7 @@ datasource db {
 
 model User {
   id             Int     @id @default(autoincrement())
-  name           String
+  name           String?
   password       String
   email          String  @unique
   profilePicture String?
@@ -27,8 +27,8 @@ model File {
   size     Int
   type     String
   path     String
-  owner    User    @relation(fields: [ownerId], references: [id])
-  ownerId  Int
+  user    User    @relation(fields: [userId], references: [id])
+  userId  Int
   directoryId Int
 }
 
@@ -36,7 +36,7 @@ model Folder {
   id       Int     @id @default(autoincrement())
   name     String
   path     String
-  owner    User    @relation(fields: [ownerId], references: [id])
-  ownerId  Int
+  user    User    @relation(fields: [userId], references: [id])
+  userId  Int
   directoryId Int
 }

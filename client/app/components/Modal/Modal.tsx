@@ -1,28 +1,32 @@
 
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
-import { setIsContextMenu, setIsModal, setIsTookAction } from '@/app/store/slice';
-import React, { useEffect, useState } from 'react';
+import { setIsModal, setIsTookAction } from '@/app/store/slice';
+import React, { useState } from 'react';
 import { ModalProps } from './Modal.type';
 import { useParams } from 'next/navigation';
 import Api from '@/app/service/Api.interceptor';
+import Cookies from 'js-cookie';
 
 const Modal: React.FC<ModalProps> = ({ visible }) => {
   const params = useParams();
-  const [val, setInput] = useState("Untitled folder");
+  const [inputValue, setInputValue] = useState("Untitled folder");
   const dispatch = useAppDispatch();
   const isTookAction = useAppSelector(state => state.slice.isTookAction)
 
-  useEffect(() => {
-    dispatch(setIsContextMenu(false))
-  }, [])
-
   const createFolder = async () => {
     try {
+      const userIdString = Cookies.get("userId") as string;
+      const userId = parseInt(userIdString);
+      const paramsIdString = params.id as string;
+      const directoryId = parseInt(paramsIdString)
+      const name = inputValue
+      if (!userId) return;
+
       await Api.post("/create_folder", {
-        name: val,
-        path: params.id,
-        ownerId: 1,
-        directoryId: params.id
+        name,
+        userId,
+        directoryId,
+        path: paramsIdString,
       })
       dispatch(setIsModal(false))
       dispatch(setIsTookAction(!isTookAction))
@@ -50,7 +54,7 @@ const Modal: React.FC<ModalProps> = ({ visible }) => {
       }}>
         <div style={{ margin: 25 }}>
           <span style={{ fontSize: 26 }}>New folder</span>
-          <input value={val} onChange={(e) => setInput(e.target.value)} style={{ marginBlock: 20, padding: "10px 20px", width: '100%', fontSize: 14 }} />
+          <input value={inputValue} onChange={(e) => setInputValue(e.target.value)} style={{ marginBlock: 20, padding: "10px 20px", width: '100%', fontSize: 14 }} />
         </div>
         <div style={{ display: 'flex', gap: 20, justifyContent: 'flex-end', marginInline: 30 }}>
           <span style={{ color: "#115bd1", fontSize: 14, fontWeight: 600, cursor: 'pointer' }} onClick={() => dispatch(setIsModal(false))}>Cancel</span>

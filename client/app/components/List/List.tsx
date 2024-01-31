@@ -2,7 +2,7 @@ import React, { useRef } from 'react'
 import { ListProp } from './List.type'
 import styles from './List.module.css'
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
-import { setIsModal, setIsTookAction } from '@/app/store/slice';
+import { setIsContextMenu, setIsModal, setIsTookAction } from '@/app/store/slice';
 import Api from '@/app/service/Api.interceptor';
 import Cookies from 'js-cookie';
 import { useParams } from 'next/navigation';
@@ -13,9 +13,9 @@ const List: React.FC<ListProp> = ({ children, isVisible }) => {
   const params = useParams()
   const isTookAction = useAppSelector(state => state.slice.isTookAction)
 
-  const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
-      const selectedFile = e.target.files?.[0];
+      const selectedFile = event.target.files?.[0];
       if (!selectedFile) return
       const formData = new FormData();
       formData.append('file', selectedFile);
@@ -26,18 +26,20 @@ const List: React.FC<ListProp> = ({ children, isVisible }) => {
         }
       })
 
+      const userIdString = Cookies.get('userId') as string;
+      const userId = parseInt(userIdString) as number;
       const path = response.data;
-      if (!path) return;
+      if (!path || !userId) return;
       const res = await Api.post("/create_file", {
         name: selectedFile.name,
         size: selectedFile.size,
         type: selectedFile.type,
         path: path,
-        ownerId: +Cookies?.get('userId'),
+        userId,
         directoryId: +params?.id
       })
       if (res.status === 200) {
-        dispatch(setIsTookAction(!isTookAction))
+        dispatch(setIsTookAction(!isTookAction));
       }
     } catch (error) {
       console.log(error)
@@ -45,8 +47,9 @@ const List: React.FC<ListProp> = ({ children, isVisible }) => {
   };
 
 
-  const onClick = async (e) => {
-    const type = e.target.dataset.type
+  const onClick = async (event: React.MouseEvent<HTMLDivElement>) => {
+    const type = (event.target as HTMLDivElement)?.dataset?.type;
+    console.log(event.target)
     if (type === "new_folder") {
       dispatch(setIsModal(true));
     } else if (type === "file_upload") {
@@ -54,6 +57,7 @@ const List: React.FC<ListProp> = ({ children, isVisible }) => {
         fileInputRef.current.click();
       }
     }
+    dispatch(setIsContextMenu(false))
   };
 
   return (

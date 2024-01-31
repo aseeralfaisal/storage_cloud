@@ -17,6 +17,7 @@ import List from '@/app/components/List/List';
 import ListItem from '@/app/components/ListItem/ListItem';
 import Devider from '@/app/components/Devider/Devider';
 import MaterialSymbolIcon from '@/app/components/MaterialSymbolIcon/MaterialSymbolIcon';
+import Cookies from 'js-cookie';
 
 const View: React.FC = () => {
 
@@ -31,17 +32,19 @@ const View: React.FC = () => {
   const [searchValue, setSearchValue] = useState("")
   const [files, setFiles] = useState([]);
   const [folders, setFolders] = useState([]);
-  const [currentSelection, setCurrentSelection] = useState({})
+  const [currentSelection, setCurrentSelection] = useState<{ type: string | null, id: number | null }>({ type: null, id: null });
 
-  const [startId, setStartId] = useState(null);
+  const [startId, setStartId] = useState<number | null>(null);
   const [startName, setStartName] = useState("");
-  const [draggedItemType, setDraggedItemType] = useState("")
+  const [draggedItemType, setDraggedItemType] = useState<Object | null>(null)
 
   const [contextMenuVisible, setContextMenuVisible] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
 
 
-  const onDragStart = (event: EventHandler, index: number, id?: number, name?: string) => {
+  const onDragStart = (event: React.MouseEvent, index: number, id?: number, name?: string) => {
+    if (!id || !name) return;
+
     setStartIndex(index);
     setStartId(id);
     setStartName(name)
@@ -67,7 +70,6 @@ const View: React.FC = () => {
     if (dropType === 'folder' && draggedItemType === 'folder') {
       const res = await Api.post("/update_folder", postData)
       if (res.status === 200) {
-        console.log(res.data)
       }
     } else if (dropType === 'folder' && draggedItemType === 'file') {
       const res = await Api.post("/update_file", postData)
@@ -82,6 +84,7 @@ const View: React.FC = () => {
       setData(newData);
     }
     dispatch(setIsTookAction(!isTookAction));
+    setStartIndex(null)
   };
 
   const handleDoubleClick = (item: any) => {
@@ -91,18 +94,20 @@ const View: React.FC = () => {
 
   const [downloadLink, setDownloadLink] = useState("")
   useEffect(() => {
-    const handleContextMenu = (e) => {
-      e.preventDefault();
+    const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
+      event.preventDefault();
 
-      setDownloadLink(e.target.getAttribute('data-link'));
+      const link = (event.target as HTMLDivElement).getAttribute('data-link') as string;
+
+      setDownloadLink(link);
       setContextMenuVisible(true);
-      setContextMenuPosition({ x: e.clientX, y: e.clientY });
+      setContextMenuPosition({ x: event.clientX, y: event.clientY });
     };
 
-    const handleMenuItemClick = (menuItem) => {
-      setContextMenuVisible(false);
-      router.push(menuItem);
-    };
+    // const handleMenuItemClick = (menuItem) => {
+    //   setContextMenuVisible(false);
+    //   router.push(menuItem);
+    // };
 
     document.addEventListener('contextmenu', handleContextMenu);
     return () => {
@@ -114,11 +119,12 @@ const View: React.FC = () => {
     setContextMenuVisible(false);
   };
 
-
   useEffect(() => {
     (async () => {
-      const folders = await Api.get(`/get_folder?directoryId=${params.id}`)
-      const files = await Api.get(`/get_file?directoryId=${params.id}`)
+      const userIdString = Cookies.get('userId') as string;
+      const userId = parseInt(userIdString)
+      const folders = await Api.get(`/get_folder?directoryId=${params.id}&userId=${userId}`)
+      const files = await Api.get(`/get_file?directoryId=${params.id}&userId=${userId}`)
 
       setFolders(folders.data)
       setFiles(files.data)
@@ -128,7 +134,6 @@ const View: React.FC = () => {
   const onElementClick = (e: any, item: any) => {
     const type = { type: e.currentTarget.getAttribute('data-attr'), id: item.id };
     setCurrentSelection(type)
-    console.log(type)
   }
 
   const contextMenuRef = useRef(null);
@@ -149,7 +154,6 @@ const View: React.FC = () => {
   const deleteItem = async () => {
     try {
       let response;
-      console.log(currentSelection)
       if (currentSelection.type === 'folder') {
         response = await Api.post(`/remove_folder`, {
           id: currentSelection.id
@@ -166,6 +170,27 @@ const View: React.FC = () => {
       console.log(error)
     }
   }
+
+  const isSelectedFolder = folders.find((folder: { type: string, id: number }) => {
+    const isFolderSelected = currentSelection.type === 'folder' && folder.id === currentSelection.id
+    return isFolderSelected;
+  })
+
+  const isSelectedFile = files.find((file: { type: string, id: number }) => {
+    const isFileSelected = currentSelection.type === 'file' && file.id === currentSelection.id
+    return isFileSelected;
+  })
+
+  const folderRef = useRef(null);
+  const fileRef = useRef(null);
+
+  useClickOutside(folderRef, () => {
+    setCurrentSelection({ type: null, id: null })
+  });
+
+  useClickOutside(fileRef, () => {
+    setCurrentSelection({ type: null, id: null })
+  });
 
   return (
     <>
@@ -184,7 +209,7 @@ const View: React.FC = () => {
           onClick={closeContextMenu}
         >
 
-          <List isVisible={contextMenuRef}>
+          <List isVisible={contextMenuVisible} >
             <div onClick={() => downloadMedia(downloadLink)}>
               <ListItem iconTitle='download' text='Download' type="file_upload" />
             </div>
@@ -224,42 +249,69 @@ const View: React.FC = () => {
             transition: 'ease-out 0.3s all'
           }}>
           {folders && folders
-            ?.filter(item => item?.name?.toLowerCase().includes(searchValue?.toLowerCase()))
-            ?.map((item, index) => {
-              return (<div
-                onDoubleClick={() => handleDoubleClick(item)}
-                onClick={(event) => onElementClick(event, item)}
-                key={index}
-                data-attr='folder'
-                draggable
-                onDragStart={(event) => onDragStart(event, index, item?.id, item?.name)}
-                onDragOver={(event) => onDragOver(event)}
-                onDrop={(event) => onDrop(event, index, folders, setFolders, item)}
-              >
-                <FolderView title={item?.name} />
-              </div>
+            ?.filter((item: { name: string, id: number }) => item?.name?.toLowerCase().includes(searchValue?.toLowerCase()))
+            ?.map((item: { name: string, id: number }, index) => {
+              return (
+                <div
+                  onDoubleClick={() => handleDoubleClick(item)}
+                  onClick={(event) => onElementClick(event, item)}
+                  key={index}
+                  data-attr='folder'
+                  data-idx={index}
+                  ref={folderRef}
+                  draggable
+                  style={{
+                    width: 243,
+                    height: 50,
+                    borderRadius: 14,
+                    overflow: 'hidden',
+                  }}
+                  onDragStart={(event) => onDragStart(event, index, item.id, item.name)}
+                  onDragOver={(event) => onDragOver(event)}
+                  onDrop={(event) => onDrop(event, index, folders, setFolders, item)}
+                >
+                  {startIndex === index ?
+                    <div>
+                      <FolderView title={item.name} bgColor={isSelectedFolder ? "#c2e7ff" : "#f0f4f9"} />
+                    </div>
+                    :
+                    <div>
+                      <FolderView title={item.name} bgColor={isSelectedFolder ? "#c2e7ff" : "#f0f4f9"} />
+                    </div>
+                  }
+                </div>
               )
             })}
         </div>
         <div style={{ fontSize: 14, color: "#333", marginBlock: 20, fontWeight: 500 }}>Files</div>
         <div style={{
-          display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fill, minmax(220px,1fr))",
+          display: "flex", gap: 16, flexWrap: 'wrap',
           transition: 'ease-out 0.3s all'
         }}>
           {files && files
-            ?.filter(item => item?.name?.toLowerCase().includes(searchValue?.toLowerCase()))
-            ?.map((item, index) => (
+            ?.filter((item: { name: string, id: number }) => item.name.toLowerCase().includes(searchValue?.toLowerCase()))
+            ?.map((item: { name: string, id: number, path: string }, index: number) => (
               <div
                 key={index}
                 onClick={(event) => onElementClick(event, item)}
+                ref={fileRef}
                 draggable
                 data-attr='file'
-                onDragStart={(event) => onDragStart(event, index, item?.id, item?.name)}
+                data-idx={index}
+                style={{ height: 230, width: 230 }}
+                onDragStart={(event) => onDragStart(event, index, item.id, item.name)}
                 onDragOver={(event) => onDragOver(event)}
                 onDrop={(event) => onDrop(event, index, files, setFiles, item)}
               >
-
-                <FileView title={item?.name} imgSrc={item.path} />
+                {startIndex === index ?
+                  <div style={{ opacity: 0.7, height: '100%' }}>
+                    <FileView title={item.name} imgSrc={item.path} bgColor={isSelectedFile ? "#c2e7ff" : "#f0f4f9"} />
+                  </div>
+                  :
+                  <div style={{ height: '100%' }}>
+                    <FileView title={item.name} imgSrc={item.path} bgColor={isSelectedFile ? "#c2e7ff" : "#f0f4f9"} />
+                  </div>
+                }
               </div>
             ))}
         </div>

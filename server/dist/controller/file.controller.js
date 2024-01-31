@@ -8,13 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 import { PrismaClient } from '@prisma/client';
-import cloudStorage from '../config/storageConfig.js';
 const prisma = new PrismaClient();
-const bucket = cloudStorage.bucket();
 const getFile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
     try {
-        const directoryId = (_a = req.query) === null || _a === void 0 ? void 0 : _a.directoryId;
+        const { directoryId, userId } = req.query;
+        if (!directoryId || !userId)
+            return;
         let resp;
         if (directoryId) {
             resp = yield prisma.file.findMany({
@@ -26,26 +25,26 @@ const getFile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         else {
             resp = yield prisma.file.findMany({
                 where: {
-                    ownerId: 1
+                    userId: +userId
                 }
             });
         }
         res.json(resp);
     }
     catch (error) {
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ error });
     }
 });
 const createFile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { name, size, type, path, ownerId, directoryId } = req.body;
+        const { name, size, type, path, userId, directoryId } = req.body;
         const resp = yield prisma.file.create({
             data: {
                 name,
                 size,
                 type,
                 path,
-                ownerId,
+                userId,
                 directoryId: +directoryId,
             },
         });

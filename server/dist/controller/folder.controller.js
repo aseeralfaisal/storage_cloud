@@ -12,7 +12,7 @@ const prisma = new PrismaClient();
 const createFolder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { userId, name, path, directoryId } = req.body;
-        const user = yield prisma.user.findFirst({
+        const user = yield prisma.user.findUnique({
             where: {
                 id: userId,
             },
@@ -23,7 +23,7 @@ const createFolder = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         const folderData = {
             name,
             path,
-            ownerId: user.id,
+            userId: user.id,
             directoryId: +directoryId,
         };
         const createdFolder = yield prisma.folder.create({
@@ -38,19 +38,24 @@ const createFolder = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 });
 const getFolders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const directoryId = req.query.directoryId;
+        const { directoryId, userId } = req.query;
+        if (!directoryId || !userId)
+            return;
+        const userIdInt = +userId;
+        const directoryIdInt = +directoryId;
         let resp;
         if (directoryId) {
             resp = yield prisma.folder.findMany({
                 where: {
-                    directoryId: +directoryId,
+                    directoryId: directoryIdInt,
+                    userId: userIdInt
                 },
             });
         }
         else {
             resp = yield prisma.folder.findMany({
                 where: {
-                    ownerId: 1
+                    userId: userIdInt
                 },
             });
         }
@@ -62,10 +67,10 @@ const getFolders = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 });
 const deleteFolder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const folderId = +req.body.id;
+        const id = req.body.id;
         const existingFolder = yield prisma.folder.findUnique({
             where: {
-                id: folderId,
+                id,
             },
         });
         if (!existingFolder) {
@@ -73,7 +78,7 @@ const deleteFolder = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         }
         const deletedFolder = yield prisma.folder.delete({
             where: {
-                id: folderId,
+                id,
             },
         });
         res.json(deletedFolder);
@@ -88,7 +93,7 @@ const updateFolder = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         const { name, id, directoryId } = req.body;
         const existingFolder = yield prisma.folder.findUnique({
             where: {
-                id: +id,
+                id,
             },
         });
         if (!existingFolder) {
@@ -96,11 +101,11 @@ const updateFolder = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         }
         const updatedFolder = yield prisma.folder.update({
             where: {
-                id: +id,
+                id,
             },
             data: {
                 name,
-                directoryId: +directoryId
+                directoryId
             },
         });
         res.json(updatedFolder);

@@ -1,3 +1,4 @@
 export type FolderViewProps = {
-  title: string
+  title: string;
+  bgColor?: string;
 }

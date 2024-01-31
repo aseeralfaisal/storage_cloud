@@ -8,8 +8,9 @@ const UserMenu: React.FC = () => {
 
   return (
     <div className="user-menu" onClick={() => {
-      Cookies.remove('refreshToken');
-      Cookies.remove('accessToken');
+      ['refreshToken', 'accessToken', 'userId', 'userName'].forEach((cookie) => {
+        Cookies.remove(cookie)
+      })
       router.push('/auth')
     }}>
       Log out
