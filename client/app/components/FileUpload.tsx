@@ -5,7 +5,7 @@ const FileUpload = () => {
   const fileRef = createRef<any>(null);
 
 
-  const handleUpload = async (e: any) => {
+  const handleUpload = async (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     try {
       const formData = new FormData();

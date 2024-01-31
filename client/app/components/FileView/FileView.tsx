@@ -1,5 +1,5 @@
 import React from 'react'
-import MaterialSymbolIcon from '../MaterialSymbolIcon/MaterialSymbolIcon'
+import MaterialSymbolIcon from 'MaterialSymbolIcon'
 import { FileViewProps } from './FileView.types'
 
 const FileView: React.FC<FileViewProps> = ({ title, imgSrc = "", bgColor = "#f0f4f9" }) => {

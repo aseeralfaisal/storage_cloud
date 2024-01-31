@@ -1,7 +1,5 @@
 import React, { useRef } from 'react'
-import List from '../List/List'
-import ListItem from '../ListItem/ListItem'
-import Devider from '../Devider/Devider'
+import { List, ListItem, Devider } from '@components'
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks'
 import useClickOutside from '@/app/hooks/useClickOutside'
 import { setIsContextMenu } from '@/app/store/slice'

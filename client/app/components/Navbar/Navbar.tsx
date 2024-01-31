@@ -1,10 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react'
 import styles from './Navbar.module.css'
-import MaterialSymbolIcon from '../MaterialSymbolIcon/MaterialSymbolIcon'
-import Pill from '../Pill/Pill'
-import Button from '../Button/Button'
-import Api from '@/app/service/Api.interceptor'
-import ContextMenu from '../ContextMenu/ContextMenu'
+import MaterialSymbolIcon from 'MaterialSymbolIcon'
+import Api from 'AxiosInterceptor'
+import { ContextMenu, Pill, Button } from '@components'
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks'
 import { setIsContextMenu } from '@/app/store/slice'
 

@@ -1,6 +1,6 @@
 import React from 'react'
+import MaterialSymbolIcon from 'MaterialSymbolIcon'
 import Button from '../Button/Button'
-import MaterialSymbolIcon from '../MaterialSymbolIcon/MaterialSymbolIcon'
 
 const Properties = () => {
   return (

@@ -1,17 +1,17 @@
 
+import React, { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { setIsModal, setIsTookAction } from '@/app/store/slice';
-import React, { useState } from 'react';
-import { ModalProps } from './Modal.type';
 import { useParams } from 'next/navigation';
-import Api from '@/app/service/Api.interceptor';
+import Api from 'AxiosInterceptor';
 import Cookies from 'js-cookie';
+import { ModalProps } from './Modal.type';
 
-const Modal: React.FC<ModalProps> = ({ visible }) => {
+const Modal: React.FC<ModalProps> = () => {
   const params = useParams();
   const [inputValue, setInputValue] = useState("Untitled folder");
   const dispatch = useAppDispatch();
-  const isTookAction = useAppSelector(state => state.slice.isTookAction)
+  const { isTookAction, isModal } = useAppSelector(state => state.slice)
 
   const createFolder = async () => {
     try {
@@ -44,7 +44,7 @@ const Modal: React.FC<ModalProps> = ({ visible }) => {
       left: 0,
       width: '100%',
       height: '100%',
-      display: visible ? 'flex' : 'none',
+      display: isModal ? 'flex' : 'none',
       justifyContent: 'center',
       alignItems: 'center',
     }} >

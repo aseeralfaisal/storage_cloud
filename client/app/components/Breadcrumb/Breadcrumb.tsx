@@ -1,6 +1,6 @@
 import React from 'react'
 import styles from './Breadcrumb.module.css'
-import MaterialSymbolIcon from '../MaterialSymbolIcon/MaterialSymbolIcon'
+import MaterialSymbolIcon from 'MaterialSymbolIcon'
 
 const Breadcrumb = () => {
   return (

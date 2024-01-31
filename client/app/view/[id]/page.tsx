@@ -1,22 +1,13 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react'
-import { Navbar, Topbar } from '@/app/components'
-import Modal from '@/app/components/Modal/Modal'
-import Breadcrumb from '@/app/components/Breadcrumb/Breadcrumb'
-import Properties from '@/app/components/Properties/Properties'
+import { Breadcrumb, Devider, ListItem, List, FileView, FolderView, Properties, Modal, Navbar, Topbar } from '@components'
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
-import { setCurrDirectoryId, setIsTookAction } from '@/app/store/slice';
-import FolderView from '@/app/components/FolderView/FolderView';
-import FileView from '@/app/components/FileView/FileView';
-import Api from '@/app/service/Api.interceptor';
-import { useParams } from 'next/navigation';
-import { useRouter } from 'next/navigation';
+import { setActionValue, setCurrDirectoryId, setCurrentSelection, setIsTookAction } from '@/app/store/slice';
+import Api from 'AxiosInterceptor';
+import { useParams, useRouter } from 'next/navigation';
 import useClickOutside from '@/app/hooks/useClickOutside';
-import List from '@/app/components/List/List';
-import ListItem from '@/app/components/ListItem/ListItem';
-import Devider from '@/app/components/Devider/Devider';
-import MaterialSymbolIcon from '@/app/components/MaterialSymbolIcon/MaterialSymbolIcon';
+import MaterialSymbolIcon from 'MaterialSymbolIcon';
 import Cookies from 'js-cookie';
 
 const View: React.FC = () => {
@@ -25,19 +16,17 @@ const View: React.FC = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  const isTookAction = useAppSelector(state => state.slice.isTookAction)
-
-  const isModalVisible = useAppSelector((state) => state.slice.isModal)
+  const { currentSelection, actionValue, isTookAction, isModalVisible } = useAppSelector(state => state.slice)
   const [startIndex, setStartIndex] = useState<number | null>(null);
   const [searchValue, setSearchValue] = useState("")
   const [files, setFiles] = useState([]);
   const [folders, setFolders] = useState([]);
-  const [currentSelection, setCurrentSelection] = useState<{ type: string | null, id: number | null }>({ type: null, id: null });
 
   const [startId, setStartId] = useState<number | null>(null);
   const [startName, setStartName] = useState("");
   const [draggedItemType, setDraggedItemType] = useState<Object | null>(null)
 
+  const [downloadLink, setDownloadLink] = useState("")
   const [contextMenuVisible, setContextMenuVisible] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
 
@@ -54,6 +43,7 @@ const View: React.FC = () => {
 
   const onDragOver = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
+    setStartIndex(null);
   }
 
   const onDrop = async (event: React.DragEvent<HTMLDivElement>, newIndex: number, data: any, setData: any, item: any) => {
@@ -92,7 +82,6 @@ const View: React.FC = () => {
     router.push(`${item.id}`)
   }
 
-  const [downloadLink, setDownloadLink] = useState("")
   useEffect(() => {
     const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
       event.preventDefault();
@@ -131,10 +120,6 @@ const View: React.FC = () => {
     })()
   }, [params.id, isTookAction])
 
-  const onElementClick = (e: any, item: any) => {
-    const type = { type: e.currentTarget.getAttribute('data-attr'), id: item.id };
-    setCurrentSelection(type)
-  }
 
   const contextMenuRef = useRef(null);
   useClickOutside(contextMenuRef, () => closeContextMenu());
@@ -151,17 +136,34 @@ const View: React.FC = () => {
     }
   };
 
+
+  const folderRef = useRef(null);
+  const fileRef = useRef(null);
+
+  useClickOutside(folderRef, () => {
+    dispatch(setCurrentSelection({ type: null, id: null }))
+  });
+
+  useClickOutside(fileRef, () => {
+    dispatch(setCurrentSelection({ type: null, id: null }))
+  });
+
+  const onElementClick = (e: React.MouseEvent, item: { type: string, id: number }) => {
+    const currentElement = { type: e.currentTarget.getAttribute('data-attr'), id: item.id };
+    dispatch(setCurrentSelection(currentElement));
+    dispatch(setActionValue(currentElement));
+  }
+
   const deleteItem = async () => {
     try {
       let response;
-      if (currentSelection.type === 'folder') {
-        response = await Api.post(`/remove_folder`, {
-          id: currentSelection.id
-        });
+      const id = actionValue.id
+      if (!id) throw Error(`id not found`, id);
+
+      if (actionValue.type === 'folder') {
+        response = await Api.post(`/remove_folder`, { id });
       } else {
-        response = await Api.post(`/remove_file`, {
-          id: currentSelection.id
-        })
+        response = await Api.post(`/remove_file`, { id })
       }
       if (response.status === 200) {
         dispatch(setIsTookAction(!isTookAction))
@@ -170,27 +172,6 @@ const View: React.FC = () => {
       console.log(error)
     }
   }
-
-  const isSelectedFolder = folders.find((folder: { type: string, id: number }) => {
-    const isFolderSelected = currentSelection.type === 'folder' && folder.id === currentSelection.id
-    return isFolderSelected;
-  })
-
-  const isSelectedFile = files.find((file: { type: string, id: number }) => {
-    const isFileSelected = currentSelection.type === 'file' && file.id === currentSelection.id
-    return isFileSelected;
-  })
-
-  const folderRef = useRef(null);
-  const fileRef = useRef(null);
-
-  useClickOutside(folderRef, () => {
-    setCurrentSelection({ type: null, id: null })
-  });
-
-  useClickOutside(fileRef, () => {
-    setCurrentSelection({ type: null, id: null })
-  });
 
   return (
     <>
@@ -271,12 +252,12 @@ const View: React.FC = () => {
                   onDrop={(event) => onDrop(event, index, folders, setFolders, item)}
                 >
                   {startIndex === index ?
-                    <div>
-                      <FolderView title={item.name} bgColor={isSelectedFolder ? "#c2e7ff" : "#f0f4f9"} />
+                    <div style={{ opacity: 0.7 }}>
+                      <FolderView title={item.name} bgColor={currentSelection.type === 'folder' && currentSelection.id === item.id ? "#c2e7ff" : "#f0f4f9"} />
                     </div>
                     :
                     <div>
-                      <FolderView title={item.name} bgColor={isSelectedFolder ? "#c2e7ff" : "#f0f4f9"} />
+                      <FolderView title={item.name} bgColor={currentSelection.type === 'folder' && currentSelection.id === item.id ? "#c2e7ff" : "#f0f4f9"} />
                     </div>
                   }
                 </div>
@@ -304,18 +285,19 @@ const View: React.FC = () => {
                 onDrop={(event) => onDrop(event, index, files, setFiles, item)}
               >
                 {startIndex === index ?
-                  <div style={{ opacity: 0.7, height: '100%' }}>
-                    <FileView title={item.name} imgSrc={item.path} bgColor={isSelectedFile ? "#c2e7ff" : "#f0f4f9"} />
+                  <div style={{ height: '100%', opacity: 0.7 }}>
+                    <FileView title={item.name} imgSrc={item.path} bgColor={currentSelection.type === 'file' && currentSelection.id === item.id ? "#c2e7ff" : "#f0f4f9"} />
                   </div>
                   :
-                  <div style={{ height: '100%' }}>
-                    <FileView title={item.name} imgSrc={item.path} bgColor={isSelectedFile ? "#c2e7ff" : "#f0f4f9"} />
+                  <div style={{ height: '100%' }} >
+                    <FileView title={item.name} imgSrc={item.path} bgColor={currentSelection.type === 'file' && currentSelection.id === item.id ? "#c2e7ff" : "#f0f4f9"} />
                   </div>
                 }
               </div>
+
             ))}
         </div>
-      </div>
+      </div >
     </>
   )
 }

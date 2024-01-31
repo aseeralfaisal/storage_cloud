@@ -1,7 +1,7 @@
 import React from 'react'
 import { FolderViewProps } from './FolderView.types'
 import styles from './FolderView.module.css'
-import MaterialSymbolIcon from '../MaterialSymbolIcon/MaterialSymbolIcon'
+import Icon from 'MaterialSymbolIcon'
 
 const FolderView: React.FC<FolderViewProps> = ({ title, bgColor }) => {
   return (
@@ -12,7 +12,7 @@ const FolderView: React.FC<FolderViewProps> = ({ title, bgColor }) => {
           {title}
         </span>
       </div>
-      <MaterialSymbolIcon title="more_vert" />
+      <Icon title="more_vert" />
     </div>
   )
 }

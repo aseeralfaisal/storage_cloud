@@ -25,6 +25,15 @@
     "paths": {
       "@/*": [
         "./*"
+      ],
+      "AxiosInterceptor": [
+        "./app/service/Api.interceptor.ts"
+      ],
+      "@components": [
+        "./app/components/index.ts"
+      ],
+      "MaterialSymbolIcon": [
+        "./app/components/MaterialSymbolIcon/MaterialSymbolIcon.tsx"
       ]
     }
   },

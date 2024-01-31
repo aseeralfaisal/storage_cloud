@@ -1,5 +1,5 @@
 import styles from './ListItem.module.css';
-import MaterialSymbolIcon from '../MaterialSymbolIcon/MaterialSymbolIcon';
+import MaterialSymbolIcon from 'MaterialSymbolIcon';
 import { ListItemProps } from './ListItem.type'
 
 const ListItem: React.FC<ListItemProps> = ({ iconTitle = "", text, imageSrc = '', isMaterialIcon = true, type }) => {

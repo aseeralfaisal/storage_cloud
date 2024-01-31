@@ -1,6 +1,6 @@
 import React from 'react'
 import styles from './InputField.module.css'
-import MaterialSymbolIcon from '../MaterialSymbolIcon/MaterialSymbolIcon'
+import MaterialSymbolIcon from 'MaterialSymbolIcon'
 import { InputFieldProps } from './InputField.type'
 
 const InputField: React.FC<InputFieldProps> = ({ value, setValue }) => {

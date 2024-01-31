@@ -1,9 +1,8 @@
 import React, { useState } from 'react'
 import styles from './Topbar.module.css'
-import InputField from '../InputField/InputField'
-import MaterialSymbolIcon from '../MaterialSymbolIcon/MaterialSymbolIcon'
+import MaterialSymbolIcon from 'MaterialSymbolIcon'
 import { TopbarProps } from './Topbar.types'
-import UserMenu from '../UserMenu/UserMenu'
+import { InputField, UserMenu } from '@components'
 
 const Topbar: React.FC<TopbarProps> = ({ searchValue, setSearchValue }) => {
 

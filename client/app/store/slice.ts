@@ -4,9 +4,11 @@ export const Slice = createSlice({
   name: 'slice',
   initialState: {
     isModal: false,
-    currDirectoryId: 1,
+    currDirectoryId: 0,
     isContextMenu: false,
-    isTookAction: false
+    isTookAction: false,
+    currentSelection: { type: null, id: null },
+    actionValue: { type: null, id: null }
   },
   reducers: {
     setIsModal: (state, action) => {
@@ -20,9 +22,15 @@ export const Slice = createSlice({
     },
     setIsTookAction: (state, action) => {
       state.isTookAction = action.payload
+    },
+    setCurrentSelection: (state, action) => {
+      state.currentSelection = action.payload
+    },
+    setActionValue: (state, action) => {
+      state.actionValue = action.payload
     }
-  },
-})
+  }
+});
 
-export const { setIsModal, setCurrDirectoryId, setIsContextMenu, setIsTookAction } = Slice.actions
+export const { setIsModal, setCurrDirectoryId, setIsContextMenu, setIsTookAction, setCurrentSelection, setActionValue } = Slice.actions
 

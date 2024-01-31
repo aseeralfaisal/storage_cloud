@@ -3,7 +3,7 @@ import { ListProp } from './List.type'
 import styles from './List.module.css'
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { setIsContextMenu, setIsModal, setIsTookAction } from '@/app/store/slice';
-import Api from '@/app/service/Api.interceptor';
+import Api from "AxiosInterceptor";
 import Cookies from 'js-cookie';
 import { useParams } from 'next/navigation';
 
@@ -48,8 +48,9 @@ const List: React.FC<ListProp> = ({ children, isVisible }) => {
 
 
   const onClick = async (event: React.MouseEvent<HTMLDivElement>) => {
-    const type = (event.target as HTMLDivElement)?.dataset?.type;
-    console.log(event.target)
+    const type = (event.target as HTMLDivElement).dataset.type;
+    console.log(type)
+
     if (type === "new_folder") {
       dispatch(setIsModal(true));
     } else if (type === "file_upload") {
