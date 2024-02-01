@@ -1,28 +1,55 @@
-import React from 'react'
-import MaterialSymbolIcon from 'MaterialSymbolIcon'
-import Button from '../Button/Button'
+import React from 'react';
+import { useAppSelector } from '@/app/store/hooks';
+import { Button } from '@components';
+import MaterialSymbolIcon from 'MaterialSymbolIcon';
+import styles from './Properties.module.css';
+import { PropertiesProps } from './Properties.type';
 
-const Properties = () => {
+const Properties: React.FC<PropertiesProps> = ({ removeItem, downloadMedia, clearSelection }) => {
+  const actionValue = useAppSelector((state) => state.slice.actionValue);
+
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBlock: 20 }}>
-        <Button title="Type" height={30} textColor='#555' borderRadius={8}
-          endIcon={<MaterialSymbolIcon title='arrow_drop_down' />}
-        />
-        <Button title="People" height={30} textColor='#555' borderRadius={8}
-          endIcon={<MaterialSymbolIcon title='arrow_drop_down' />}
-        />
+    <>
+      {actionValue.type && actionValue.id ? (
+        <div className={styles.selectedContainer}>
+          <div className={styles.selectionInfo}>
+            <div className={styles.actionBtn} onClick={clearSelection}>
+              <MaterialSymbolIcon title="close" />
+            </div>
+            <span className={styles.selectionInfoText}>1 selected</span>
+          </div>
+          <div className={styles.actionBtn} >
+            <MaterialSymbolIcon title='Edit' />
+          </div>
+          <div className={styles.actionBtn} onClick={downloadMedia}>
+            <MaterialSymbolIcon title='download' />
+          </div>
+          <div className={styles.actionBtn} onClick={removeItem}>
+            <MaterialSymbolIcon title='delete' />
+          </div>
+        </div>
+      ) : (
+        <div className={styles.propertiesContainer}>
+          <div className={styles.buttonsContainer}>
+            <Button title="Type" height={30} textColor='#555' borderRadius={8}
+              endIcon={<MaterialSymbolIcon title='arrow_drop_down' />}
+            />
+            <Button title="People" height={30} textColor='#555' borderRadius={8}
+              endIcon={<MaterialSymbolIcon title='arrow_drop_down' />}
+            />
+            <Button title="Modified" height={30} textColor='#555' borderRadius={8}
+              endIcon={<MaterialSymbolIcon title='arrow_drop_down' />}
+            />
+          </div>
+          <div className={styles.buttonsContainer}>
+            <MaterialSymbolIcon title='grid_view' size={22} />
+            <MaterialSymbolIcon title='info' size={22} />
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
 
-        <Button title="Modified" height={30} textColor='#555' borderRadius={8}
-          endIcon={<MaterialSymbolIcon title='arrow_drop_down' />}
-        />
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <MaterialSymbolIcon title='grid_view' size={22} />
-        <MaterialSymbolIcon title='info' size={22} />
-      </div>
-    </div>
-  )
-}
+export default Properties;
 
-export default Properties

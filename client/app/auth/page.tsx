@@ -5,14 +5,12 @@ import styles from './auth.module.css';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import Api from 'AxiosInterceptor';
-import { useAppSelector } from '@/app/store/hooks';
 
 const AuthPage: React.FC = () => {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isRegisterMode, setRegisterMode] = useState(false);
-  const currDirectoryId = useAppSelector(state => state.slice.currDirectoryId)
 
   const handleRegisterLinkClick = () => {
     setRegisterMode(true);
@@ -31,12 +29,13 @@ const AuthPage: React.FC = () => {
       });
 
       const { accessToken, refreshToken, userId } = response.data
-      Cookies.set('accessToken', accessToken)
-      Cookies.set('refreshToken', refreshToken)
-      Cookies.set('userId', userId)
+      Cookies.set('accessToken', accessToken);
+      Cookies.set('refreshToken', refreshToken);
+      Cookies.set('userId', userId);
+      Cookies.set('email', email)
 
       if (response.status === 200) {
-        router.push(`/view/${currDirectoryId}`);
+        router.push(`/view/0`);
       }
 
       return;

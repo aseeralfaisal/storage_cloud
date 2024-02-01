@@ -11,22 +11,23 @@ const Modal: React.FC<ModalProps> = () => {
   const params = useParams();
   const [inputValue, setInputValue] = useState("Untitled folder");
   const dispatch = useAppDispatch();
-  const { isTookAction, isModal } = useAppSelector(state => state.slice)
+  const { isTookAction, isModal, folderId } = useAppSelector(state => state.slice)
 
   const createFolder = async () => {
     try {
       const userIdString = Cookies.get("userId") as string;
       const userId = parseInt(userIdString);
       const paramsIdString = params.id as string;
-      const directoryId = parseInt(paramsIdString)
+      // const directoryId = parseInt(paramsIdString)
       const name = inputValue
       if (!userId) return;
 
       await Api.post("/create_folder", {
         name,
         userId,
-        directoryId,
+        directoryId: folderId,
         path: paramsIdString,
+        parentId: folderId === 0 ? null : folderId
       })
       dispatch(setIsModal(false))
       dispatch(setIsTookAction(!isTookAction))

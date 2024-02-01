@@ -11,7 +11,7 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 const createFolder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { userId, name, path, directoryId } = req.body;
+        const { userId, name, path, directoryId, parentId } = req.body;
         const user = yield prisma.user.findUnique({
             where: {
                 id: userId,
@@ -25,6 +25,7 @@ const createFolder = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             path,
             userId: user.id,
             directoryId: +directoryId,
+            parentId: parentId
         };
         const createdFolder = yield prisma.folder.create({
             data: folderData,
@@ -90,7 +91,7 @@ const deleteFolder = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 });
 const updateFolder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { name, id, directoryId } = req.body;
+        const { name, id, directoryId, parentId } = req.body;
         const existingFolder = yield prisma.folder.findUnique({
             where: {
                 id,
@@ -105,7 +106,8 @@ const updateFolder = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             },
             data: {
                 name,
-                directoryId
+                directoryId,
+                parentId
             },
         });
         res.json(updatedFolder);
@@ -114,9 +116,66 @@ const updateFolder = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         res.status(500).json({ error });
     }
 });
+const getAllFolders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const userIdString = req.query.userId;
+        const userId = parseInt(userIdString);
+        const folders = yield prisma.folder.findMany({
+            where: {
+                userId,
+            },
+            include: { children: true },
+        });
+        res.json(folders);
+    }
+    catch (error) {
+        console.log(error);
+    }
+});
+const getFoldersBasedOnPath = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const folderIdString = req.query.folderId;
+        const id = parseInt(folderIdString);
+        const userIdString = req.query.userId;
+        const userId = parseInt(userIdString);
+        const user = yield prisma.user.findUnique({
+            where: {
+                id: userId,
+            },
+        });
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+        let folders;
+        if (id) {
+            folders = yield prisma.folder.findMany({
+                where: {
+                    id,
+                    userId
+                },
+                include: { children: true },
+            });
+        }
+        else {
+            folders = yield prisma.folder.findMany({
+                where: {
+                    userId,
+                    parentId: null
+                },
+                include: { children: true },
+            });
+        }
+        res.json(folders);
+    }
+    catch (error) {
+        console.log(error);
+    }
+});
 export default {
     createFolder,
     getFolders,
+    getFoldersBasedOnPath,
     deleteFolder,
-    updateFolder
+    updateFolder,
+    getAllFolders
 };

@@ -9,7 +9,7 @@ import { setIsContextMenu } from '@/app/store/slice'
 const Navbar: React.FC = () => {
   const dispatch = useAppDispatch();
   const contextMenuRef = useRef(null);
-  const isContextMenu = useAppSelector(state => state.slice.isContextMenu)
+  const { isContextMenu } = useAppSelector(state => state.slice)
 
   const [usageSize, setUsageSize] = useState(null)
   useEffect(() => {
@@ -24,6 +24,7 @@ const Navbar: React.FC = () => {
   }
 
   const totalSizeMB = (parseInt((usageSize as any)?.totalSizeMB) || 0).toFixed(2);
+
 
   return (
     <div className={styles.navbarWrapper}>
@@ -91,7 +92,7 @@ const Navbar: React.FC = () => {
       <div style={{ margin: 15 }}>
         <Button title="Get more storage" textColor='#0b57d0' />
       </div>
-    </div>
+    </div >
   )
 }
 

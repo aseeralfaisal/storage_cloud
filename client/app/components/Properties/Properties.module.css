@@ -1,0 +1,47 @@
+.propertiesContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.selectedContainer {
+  width: 100%;
+  background-color: #f0f4f9;
+  height: 40px;
+  border-radius: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 8px 10px;
+  margin-block: 20px;
+}
+
+.selectionInfo {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.selectionInfo>div {
+  cursor: pointer;
+}
+
+.actionBtn:hover {
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+.selectionInfoText {
+  font-size: 14px;
+  font-weight: 400;
+  margin-top: -5px;
+  cursor: default;
+}
+
+.buttonsContainer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-block: 20px;
+  margin-bottom: 10px;
+}

@@ -5,4 +5,6 @@ router.post('/create_folder', folderController.createFolder);
 router.post('/remove_folder', folderController.deleteFolder);
 router.post('/update_folder', folderController.updateFolder);
 router.get("/get_folder", folderController.getFolders);
+router.get("/get_folder_path", folderController.getFoldersBasedOnPath);
+router.get("/get_all_folder", folderController.getAllFolders);
 export default router;

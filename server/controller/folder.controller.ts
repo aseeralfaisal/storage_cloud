@@ -2,13 +2,11 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 
-
 const prisma = new PrismaClient();
-
 
 const createFolder = async (req: Request, res: Response) => {
   try {
-    const { userId, name, path, directoryId } = req.body;
+    const { userId, name, path, directoryId, parentId } = req.body;
 
     const user = await prisma.user.findUnique({
       where: {
@@ -19,12 +17,12 @@ const createFolder = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-    const folderData:
-      { name: string, path: string, userId: number, directoryId: number } = {
+    const folderData = {
       name,
       path,
       userId: user.id,
       directoryId: +directoryId,
+      parentId: parentId
     };
 
     const createdFolder = await prisma.folder.create({
@@ -97,7 +95,7 @@ const deleteFolder = async (req: Request, res: Response) => {
 
 const updateFolder = async (req: Request, res: Response) => {
   try {
-    const { name, id, directoryId } = req.body;
+    const { name, id, directoryId, parentId } = req.body;
 
     const existingFolder = await prisma.folder.findUnique({
       where: {
@@ -115,7 +113,8 @@ const updateFolder = async (req: Request, res: Response) => {
       },
       data: {
         name,
-        directoryId
+        directoryId,
+        parentId
       },
     });
 
@@ -125,9 +124,73 @@ const updateFolder = async (req: Request, res: Response) => {
   }
 };
 
+const getAllFolders = async (req: Request, res: Response) => {
+  try {
+    const userIdString = req.query.userId as string;
+    const userId = parseInt(userIdString);
+
+    const folders = await prisma.folder.findMany({
+      where: {
+        userId,
+      },
+      include: { children: true },
+    });
+
+    res.json(folders);
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+const getFoldersBasedOnPath = async (req: Request, res: Response) => {
+  try {
+    const folderIdString = req.query.folderId as string;
+    const id = parseInt(folderIdString);
+
+    const userIdString = req.query.userId as string;
+    const userId = parseInt(userIdString);
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    let folders;
+
+    if (id) {
+      folders = await prisma.folder.findMany({
+        where: {
+          id,
+          userId
+        },
+        include: { children: true },
+      });
+    } else {
+      folders = await prisma.folder.findMany({
+        where: {
+          userId,
+          parentId: null
+        },
+        include: { children: true },
+      });
+    }
+
+    res.json(folders);
+  } catch (error) {
+    console.log(error)
+  }
+}
+
 export default {
   createFolder,
   getFolders,
+  getFoldersBasedOnPath,
   deleteFolder,
-  updateFolder
+  updateFolder,
+  getAllFolders
 }

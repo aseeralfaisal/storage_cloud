@@ -4,7 +4,8 @@ export const Slice = createSlice({
   name: 'slice',
   initialState: {
     isModal: false,
-    currDirectoryId: 0,
+    folderId: 0,
+    folders: [],
     isContextMenu: false,
     isTookAction: false,
     currentSelection: { type: null, id: null },
@@ -15,8 +16,8 @@ export const Slice = createSlice({
     setIsModal: (state, action) => {
       state.isModal = action.payload
     },
-    setCurrDirectoryId: (state, action) => {
-      state.currDirectoryId = action.payload;
+    setFolderId: (state, action) => {
+      state.folderId = action.payload;
     },
     setIsContextMenu: (state, action) => {
       state.isContextMenu = action.payload;
@@ -30,6 +31,9 @@ export const Slice = createSlice({
     setActionValue: (state, action) => {
       state.actionValue = action.payload
     },
+    setFolders: (state, action) => {
+      state.folders = action.payload
+    },
     setBreadCrumbList: (state, action) => {
       if (action.payload === null) return
       state.breadCrumbList = Array.from(new Set([...state.breadCrumbList, action.payload]));
@@ -39,11 +43,12 @@ export const Slice = createSlice({
 
 export const {
   setIsModal,
-  setCurrDirectoryId,
+  setFolderId,
   setIsContextMenu,
   setIsTookAction,
   setCurrentSelection,
   setActionValue,
-  setBreadCrumbList
+  setBreadCrumbList,
+  setFolders
 } = Slice.actions
 

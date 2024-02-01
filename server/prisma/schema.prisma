@@ -22,21 +22,24 @@ model User {
 }
 
 model File {
-  id       Int     @id @default(autoincrement())
-  name     String
-  size     Int
-  type     String
-  path     String
-  user    User    @relation(fields: [userId], references: [id])
-  userId  Int
+  id          Int    @id @default(autoincrement())
+  name        String
+  size        Int
+  type        String
+  path        String
+  user        User   @relation(fields: [userId], references: [id])
+  userId      Int
   directoryId Int
 }
 
 model Folder {
-  id       Int     @id @default(autoincrement())
-  name     String
-  path     String
-  user    User    @relation(fields: [userId], references: [id])
-  userId  Int
+  id          Int      @id @default(autoincrement())
+  name        String
+  path        String
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int
   directoryId Int
+  parentId    Int?
+  parent      Folder?  @relation("ChildFoldsRelation", fields: [parentId], references: [id])
+  children    Folder[] @relation("ChildFoldsRelation")
 }

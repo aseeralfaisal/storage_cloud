@@ -3,11 +3,10 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Breadcrumb, Devider, ListItem, List, FileView, FolderView, Properties, Modal, Navbar, Topbar } from '@components'
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
-import { setActionValue, setBreadCrumbList, setCurrDirectoryId, setCurrentSelection, setIsTookAction } from '@/app/store/slice';
+import { setActionValue, setFolderId, setCurrentSelection, setIsTookAction, setFolders } from '@/app/store/slice';
 import Api from 'AxiosInterceptor';
 import { useParams, useRouter } from 'next/navigation';
 import useClickOutside from '@/app/hooks/useClickOutside';
-import MaterialSymbolIcon from 'MaterialSymbolIcon';
 import Cookies from 'js-cookie';
 
 const View: React.FC = () => {
@@ -15,11 +14,10 @@ const View: React.FC = () => {
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  const { currentSelection, actionValue, isTookAction, isModalVisible, breadCrumbList } = useAppSelector(state => state.slice)
+  const { currentSelection, actionValue, isTookAction, isModalVisible, folders } = useAppSelector(state => state.slice)
   const [startIndex, setStartIndex] = useState<number | null>(null);
   const [searchValue, setSearchValue] = useState("")
   const [files, setFiles] = useState([]);
-  const [folders, setFolders] = useState([]);
 
   const [startId, setStartId] = useState<number | null>(null);
   const [startName, setStartName] = useState("");
@@ -49,8 +47,9 @@ const View: React.FC = () => {
     setStartIndex(index);
     setStartId(id);
     setStartName(name)
-    const draggedType = event.currentTarget.getAttribute("data-attr");
-    setDraggedItemType(draggedType)
+    const draggedItemType = event.currentTarget.getAttribute("data-attr");
+    // setting drag type as folder or file
+    setDraggedItemType(draggedItemType)
   }
 
   const onDragOver = (event: React.DragEvent<HTMLDivElement>) => {
@@ -60,40 +59,39 @@ const View: React.FC = () => {
 
   const onDrop = async (event: React.DragEvent<HTMLDivElement>, newIndex: number, data: any, setData: any, item: any) => {
     event.preventDefault();
-    if (startIndex === null) return;
-
-    const postData = {
-      id: startId,
-      name: startName,
-      directoryId: +item.id
-    }
-    const dropType = event.currentTarget.getAttribute("data-attr");
-
-    if (dropType === 'folder' && draggedItemType === 'folder') {
-      const res = await Api.post("/update_folder", postData)
-      if (res.status === 200) {
-      }
-    } else if (dropType === 'folder' && draggedItemType === 'file') {
-      const res = await Api.post("/update_file", postData)
-      if (res.status === 200) {
-        console.log(res.data)
-      }
-    } else {
+    if (startIndex) {
       const newData = [...data];
       const prevItem = newData[startIndex];
       newData[startIndex] = newData[newIndex];
       newData[newIndex] = prevItem;
       setData(newData);
     }
+
+    const postData = {
+      id: startId,
+      name: startName,
+      directoryId: +item.id,
+      parentId: +item.id
+    }
+    console.log("dropped")
+    console.log(postData)
+    const dropType = event.currentTarget.getAttribute("data-attr");
+
+    if (dropType === 'folder' && draggedItemType === 'folder') {
+      const res = await Api.post("/update_folder", postData)
+      if (res.status === 200) {
+        console.log(res.data)
+      }
+    } else if (dropType === 'folder' && draggedItemType === 'file') {
+      const res = await Api.post("/update_file", postData)
+      if (res.status === 200) {
+        console.log(res.data)
+      }
+    }
+
     dispatch(setIsTookAction(!isTookAction));
     setStartIndex(null)
   };
-
-  const handleDoubleClick = (item: any) => {
-    dispatch(setCurrDirectoryId(item.id));
-    dispatch(setActionValue({ type: item.type, name: item.name, id: item.id }));
-    router.push(`${item.id}`)
-  }
 
   useEffect(() => {
     const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -116,23 +114,26 @@ const View: React.FC = () => {
   const closeContextMenu = () => setContextMenuVisible(false);
 
   useEffect(() => {
-    dispatch(setBreadCrumbList(actionValue?.name))
-    console.log(breadCrumbList)
-  }, [actionValue])
-
-  useEffect(() => {
     (async () => {
       const userIdString = Cookies.get('userId') as string;
       const userId = parseInt(userIdString)
-      const folders = await Api.get(`/get_folder?directoryId=${params.id}&userId=${userId}`)
-      const files = await Api.get(`/get_file?directoryId=${params.id}&userId=${userId}`)
+      const folderApiUrl = `/get_folder_path?folderId=${params.id}&userId=${userId}`
+      const fileApiUrl = `/get_file?directoryId=${params.id}&userId=${userId}`
+      const folders = await Api.get(folderApiUrl)
+      const files = await Api.get(fileApiUrl)
 
-      setFolders(folders.data)
+      let folderList
+      if (+params.id === 0) {
+        folderList = folders.data
+      } else {
+        folderList = folders.data[0].children || []
+      }
+      dispatch(setFolders(folderList));
       setFiles(files.data)
     })()
-  }, [params.id, isTookAction])
+  }, [params.id, isTookAction, router])
 
-  const downloadMedia = (url: string) => {
+  const downloadMedia = (url: string): any => {
     try {
       const link = document.createElement('a');
       link.href = url;
@@ -151,6 +152,17 @@ const View: React.FC = () => {
     dispatch(setActionValue(actionElement));
   }
 
+  const handleDoubleClick = (item: any) => {
+    dispatch(setFolderId(item.id));
+    dispatch(setActionValue({ type: item.type, name: item.name, id: item.id }));
+    router.push(`${item.id}`)
+  }
+
+  const clearSelection = () => {
+    dispatch(setCurrentSelection({ type: null, id: null }));
+    dispatch(setActionValue({ type: null, id: null }));
+  };
+
   const deleteItem = async () => {
     try {
       let response;
@@ -164,6 +176,7 @@ const View: React.FC = () => {
       }
       if (response.status === 200) {
         dispatch(setIsTookAction(!isTookAction))
+        clearSelection();
       }
     } catch (error) {
       console.log(error)
@@ -211,16 +224,8 @@ const View: React.FC = () => {
         <div style={{ position: 'relative', display: 'flex' }}>
           <Breadcrumb />
         </div>
-        <Properties />
-        <div style={{
-          width: '100%', backgroundColor: "#f0f4f9", height: 30, borderRadius: 20,
-          display: 'flex', alignItems: 'center', gap: 10, padding: 20
-        }}>
-          <MaterialSymbolIcon title='download' />
-          <div onClick={deleteItem}>
-            <MaterialSymbolIcon title='delete' />
-          </div>
-        </div>
+        {/*@ts-ignore*/}
+        <Properties removeItem={deleteItem} downloadFile={downloadMedia} clearSelection={clearSelection} />
         <div style={{ fontSize: 14, color: "#333", marginBlock: 20, fontWeight: 500 }}>Folders</div>
         <div
           style={{
@@ -229,7 +234,7 @@ const View: React.FC = () => {
           }}>
           {folders && folders
             ?.filter((item: { name: string, id: number }) => item?.name?.toLowerCase().includes(searchValue?.toLowerCase()))
-            ?.map((item: { name: string, id: number }, index) => {
+            ?.map((item: { name: string, id: number }, index: number) => {
               return (
                 <div
                   onDoubleClick={() => handleDoubleClick(item)}
