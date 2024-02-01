@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Breadcrumb, Devider, ListItem, List, FileView, FolderView, Properties, Modal, Navbar, Topbar } from '@components'
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
-import { setActionValue, setCurrDirectoryId, setCurrentSelection, setIsTookAction } from '@/app/store/slice';
+import { setActionValue, setBreadCrumbList, setCurrDirectoryId, setCurrentSelection, setIsTookAction } from '@/app/store/slice';
 import Api from 'AxiosInterceptor';
 import { useParams, useRouter } from 'next/navigation';
 import useClickOutside from '@/app/hooks/useClickOutside';
@@ -11,12 +11,11 @@ import MaterialSymbolIcon from 'MaterialSymbolIcon';
 import Cookies from 'js-cookie';
 
 const View: React.FC = () => {
-
   const params = useParams();
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  const { currentSelection, actionValue, isTookAction, isModalVisible } = useAppSelector(state => state.slice)
+  const { currentSelection, actionValue, isTookAction, isModalVisible, breadCrumbList } = useAppSelector(state => state.slice)
   const [startIndex, setStartIndex] = useState<number | null>(null);
   const [searchValue, setSearchValue] = useState("")
   const [files, setFiles] = useState([]);
@@ -30,6 +29,19 @@ const View: React.FC = () => {
   const [contextMenuVisible, setContextMenuVisible] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
 
+  const contextMenuRef = useRef(null);
+  const folderRef = useRef(null);
+  const fileRef = useRef(null);
+
+  useClickOutside(contextMenuRef, () => closeContextMenu());
+
+  useClickOutside(folderRef, () => {
+    dispatch(setCurrentSelection({ type: null, id: null }))
+  });
+
+  useClickOutside(fileRef, () => {
+    dispatch(setCurrentSelection({ type: null, id: null }))
+  });
 
   const onDragStart = (event: React.MouseEvent, index: number, id?: number, name?: string) => {
     if (!id || !name) return;
@@ -79,13 +91,13 @@ const View: React.FC = () => {
 
   const handleDoubleClick = (item: any) => {
     dispatch(setCurrDirectoryId(item.id));
+    dispatch(setActionValue({ type: item.type, name: item.name, id: item.id }));
     router.push(`${item.id}`)
   }
 
   useEffect(() => {
     const handleContextMenu = (event: React.MouseEvent<HTMLDivElement>) => {
       event.preventDefault();
-
       const link = (event.target as HTMLDivElement).getAttribute('data-link') as string;
 
       setDownloadLink(link);
@@ -93,20 +105,20 @@ const View: React.FC = () => {
       setContextMenuPosition({ x: event.clientX, y: event.clientY });
     };
 
-    // const handleMenuItemClick = (menuItem) => {
-    //   setContextMenuVisible(false);
-    //   router.push(menuItem);
-    // };
-
+    //@ts-ignore
     document.addEventListener('contextmenu', handleContextMenu);
     return () => {
+      //@ts-ignore
       document.removeEventListener('contextmenu', handleContextMenu);
     };
   }, [router]);
 
-  const closeContextMenu = () => {
-    setContextMenuVisible(false);
-  };
+  const closeContextMenu = () => setContextMenuVisible(false);
+
+  useEffect(() => {
+    dispatch(setBreadCrumbList(actionValue?.name))
+    console.log(breadCrumbList)
+  }, [actionValue])
 
   useEffect(() => {
     (async () => {
@@ -120,10 +132,6 @@ const View: React.FC = () => {
     })()
   }, [params.id, isTookAction])
 
-
-  const contextMenuRef = useRef(null);
-  useClickOutside(contextMenuRef, () => closeContextMenu());
-
   const downloadMedia = (url: string) => {
     try {
       const link = document.createElement('a');
@@ -136,22 +144,11 @@ const View: React.FC = () => {
     }
   };
 
-
-  const folderRef = useRef(null);
-  const fileRef = useRef(null);
-
-  useClickOutside(folderRef, () => {
-    dispatch(setCurrentSelection({ type: null, id: null }))
-  });
-
-  useClickOutside(fileRef, () => {
-    dispatch(setCurrentSelection({ type: null, id: null }))
-  });
-
-  const onElementClick = (e: React.MouseEvent, item: { type: string, id: number }) => {
+  const onElementClick = (e: React.MouseEvent, item: { type: string, id: number, name?: string }) => {
     const currentElement = { type: e.currentTarget.getAttribute('data-attr'), id: item.id };
+    const actionElement = { type: e.currentTarget.getAttribute('data-attr'), id: item.id, name: item.name };
     dispatch(setCurrentSelection(currentElement));
-    dispatch(setActionValue(currentElement));
+    dispatch(setActionValue(actionElement));
   }
 
   const deleteItem = async () => {
@@ -208,6 +205,7 @@ const View: React.FC = () => {
       <Topbar searchValue={searchValue} setSearchValue={setSearchValue} />
       <Navbar />
 
+      {/* @ts-ignore */}
       <Modal visible={isModalVisible} />
       <div style={{ marginBlock: 30, marginLeft: 280, marginRight: 30 }}>
         <div style={{ position: 'relative', display: 'flex' }}>
@@ -235,6 +233,7 @@ const View: React.FC = () => {
               return (
                 <div
                   onDoubleClick={() => handleDoubleClick(item)}
+                  /* @ts-ignore */
                   onClick={(event) => onElementClick(event, item)}
                   key={index}
                   data-attr='folder'
@@ -274,6 +273,7 @@ const View: React.FC = () => {
             ?.map((item: { name: string, id: number, path: string }, index: number) => (
               <div
                 key={index}
+                /* @ts-ignore */
                 onClick={(event) => onElementClick(event, item)}
                 ref={fileRef}
                 draggable

@@ -1,23 +1,24 @@
+
 import React, { createRef } from 'react';
-import axios from 'axios';
+import Api from 'AxiosInterceptor';
 
 const FileUpload = () => {
-  const fileRef = createRef<any>(null);
+  const fileRef = createRef<HTMLInputElement>();
 
-
-  const handleUpload = async (e: React.MouseEvent<HTMLElement>) => {
+  const handleUpload = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       const formData = new FormData();
-      formData.append('file', fileRef.current.files[0]);
+      if (fileRef.current && fileRef.current.files) {
+        formData.append('file', fileRef.current.files[0]);
+        const response = await Api.post('/upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
 
-      const response = await axios.post('http://localhost:5000/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      console.log('File uploaded successfully. Download URL:', response.data);
+        console.log('File uploaded successfully. Download URL:', response.data);
+      }
     } catch (error) {
       console.error(error);
     }

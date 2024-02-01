@@ -46,23 +46,24 @@ const List: React.FC<ListProp> = ({ children, isVisible }) => {
     }
   };
 
+  const clickOnList = async (event: React.MouseEvent<HTMLUListElement>) => {
+    const target = event.target as HTMLDivElement;
 
-  const onClick = async (event: React.MouseEvent<HTMLDivElement>) => {
-    const type = (event.target as HTMLDivElement).dataset.type;
-    console.log(type)
+    if (target && target.dataset) {
+      const type = target.dataset.type;
 
-    if (type === "new_folder") {
-      dispatch(setIsModal(true));
-    } else if (type === "file_upload") {
-      if (fileInputRef.current) {
-        fileInputRef.current.click();
+      if (type === "new_folder") {
+        dispatch(setIsModal(true));
+      } else if (type === "file_upload") {
+        if (fileInputRef.current) {
+          fileInputRef.current.click();
+        }
       }
     }
-    dispatch(setIsContextMenu(false))
-  };
 
-  return (
-    <ul onClick={onClick} className={styles.container} style={{ display: isVisible ? 'block' : 'none' }}>
+    dispatch(setIsContextMenu(false));
+  }; return (
+    <ul onClick={clickOnList} className={styles.container} style={{ display: isVisible ? 'block' : 'none' }}>
       <input
         type="file"
         ref={fileInputRef}

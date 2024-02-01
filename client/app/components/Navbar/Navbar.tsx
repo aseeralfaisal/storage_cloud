@@ -8,6 +8,7 @@ import { setIsContextMenu } from '@/app/store/slice'
 
 const Navbar: React.FC = () => {
   const dispatch = useAppDispatch();
+  const contextMenuRef = useRef(null);
   const isContextMenu = useAppSelector(state => state.slice.isContextMenu)
 
   const [usageSize, setUsageSize] = useState(null)
@@ -21,7 +22,8 @@ const Navbar: React.FC = () => {
   const openContextMenu = () => {
     dispatch(setIsContextMenu(!isContextMenu))
   }
-  const contextMenuRef = useRef(null);
+
+  const totalSizeMB = (parseInt((usageSize as any)?.totalSizeMB) || 0).toFixed(2);
 
   return (
     <div className={styles.navbarWrapper}>
@@ -80,9 +82,9 @@ const Navbar: React.FC = () => {
       </div>
 
       <div style={{ display: 'block', margin: "8px 14px" }}>
-        <progress value={usageSize?.totalSizeMB} max={1024} style={{ height: 12 }} />
+        <progress value={totalSizeMB} max={1024} style={{ height: 12 }} />
         <div>
-          <span style={{ fontSize: 14, color: "#333" }}>{usageSize?.totalSizeMB.toFixed(2)} MB of 1024 MB used </span>
+          <span style={{ fontSize: 14, color: "#333" }}>{totalSizeMB} MB of 1024 MB used </span>
         </div>
       </div>
 

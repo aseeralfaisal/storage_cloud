@@ -8,7 +8,8 @@ export const Slice = createSlice({
     isContextMenu: false,
     isTookAction: false,
     currentSelection: { type: null, id: null },
-    actionValue: { type: null, id: null }
+    actionValue: { type: null, id: null, name: null },
+    breadCrumbList: [""]
   },
   reducers: {
     setIsModal: (state, action) => {
@@ -28,9 +29,21 @@ export const Slice = createSlice({
     },
     setActionValue: (state, action) => {
       state.actionValue = action.payload
+    },
+    setBreadCrumbList: (state, action) => {
+      if (action.payload === null) return
+      state.breadCrumbList = Array.from(new Set([...state.breadCrumbList, action.payload]));
     }
   }
 });
 
-export const { setIsModal, setCurrDirectoryId, setIsContextMenu, setIsTookAction, setCurrentSelection, setActionValue } = Slice.actions
+export const {
+  setIsModal,
+  setCurrDirectoryId,
+  setIsContextMenu,
+  setIsTookAction,
+  setCurrentSelection,
+  setActionValue,
+  setBreadCrumbList
+} = Slice.actions
 

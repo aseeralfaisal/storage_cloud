@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import styles from './auth.module.css';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-import Api from '../service/Api.interceptor';
-import { useAppSelector } from '../store/hooks';
+import Api from 'AxiosInterceptor';
+import { useAppSelector } from '@/app/store/hooks';
 
 const AuthPage: React.FC = () => {
   const router = useRouter();
@@ -22,8 +22,8 @@ const AuthPage: React.FC = () => {
     setRegisterMode(false);
   };
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  const handleLogin = async (event: React.MouseEvent<HTMLFormElement>) => {
+    event.preventDefault();
     try {
       const response = await Api.post("/login_user", {
         email,
@@ -38,14 +38,16 @@ const AuthPage: React.FC = () => {
       if (response.status === 200) {
         router.push(`/view/${currDirectoryId}`);
       }
+
+      return;
     } catch (error) {
       console.error(error)
       router.push('/auth')
     }
   }
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
+  const handleRegister = async (event: React.MouseEvent<HTMLFormElement>) => {
+    event.preventDefault();
     try {
       const response = await Api.post("create_user", {
         email,
@@ -54,6 +56,7 @@ const AuthPage: React.FC = () => {
       if (response.status === 200) {
         setRegisterMode(false)
       }
+      return;
     } catch (error) {
       console.error(error)
       router.push('/auth')
