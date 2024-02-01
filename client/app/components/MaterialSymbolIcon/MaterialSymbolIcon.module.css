@@ -1,0 +1,12 @@
+.icon {
+  border-radius: 50%;
+  border: 1px solid transparent;
+  color: #444746;
+  cursor: pointer;
+  padding: 8px;
+  z-index: 2;
+}
+
+.icon:hover {
+  background: rgba(68, 71, 70, .1);
+}

@@ -10,6 +10,11 @@ export const Slice = createSlice({
     isTookAction: false,
     currentSelection: { type: null, id: null },
     actionValue: { type: null, id: null, name: null },
+    modalType: 'create',
+    modalInputValue: "Untitled folder",
+    currentBreadcrumbFolder: null,
+    userMenuVisible: false,
+    profileImgSrc: null,
     breadCrumbList: [""]
   },
   reducers: {
@@ -34,6 +39,21 @@ export const Slice = createSlice({
     setFolders: (state, action) => {
       state.folders = action.payload
     },
+    setModalType: (state, action) => {
+      state.modalType = action.payload
+    },
+    setModalInputValue: (state, action) => {
+      state.modalInputValue = action.payload
+    },
+    setCurrrentBreadcrumbFolder: (state, action) => {
+      state.currentBreadcrumbFolder = action.payload
+    },
+    toggleUserMenu: (state, action) => {
+      state.userMenuVisible = action.payload
+    },
+    setProfileImgSrc: (state, action) => {
+      state.profileImgSrc = action.payload
+    },
     setBreadCrumbList: (state, action) => {
       if (action.payload === null) return
       state.breadCrumbList = Array.from(new Set([...state.breadCrumbList, action.payload]));
@@ -49,6 +69,11 @@ export const {
   setCurrentSelection,
   setActionValue,
   setBreadCrumbList,
-  setFolders
+  setCurrrentBreadcrumbFolder,
+  setFolders,
+  setModalType,
+  setModalInputValue,
+  toggleUserMenu,
+  setProfileImgSrc
 } = Slice.actions
 

@@ -1,12 +1,20 @@
 import React from 'react';
-import { useAppSelector } from '@/app/store/hooks';
+import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { Button } from '@components';
 import MaterialSymbolIcon from 'MaterialSymbolIcon';
 import styles from './Properties.module.css';
 import { PropertiesProps } from './Properties.type';
+import { setIsModal, setModalInputValue, setModalType } from '@/app/store/slice';
 
 const Properties: React.FC<PropertiesProps> = ({ removeItem, downloadMedia, clearSelection }) => {
+  const dispatch = useAppDispatch();
   const actionValue = useAppSelector((state) => state.slice.actionValue);
+
+  const openRenameModal = () => {
+    dispatch(setModalType('update'))
+    dispatch(setModalInputValue(`new ${actionValue.type} name`))
+    dispatch(setIsModal(true))
+  }
 
   return (
     <>
@@ -18,7 +26,7 @@ const Properties: React.FC<PropertiesProps> = ({ removeItem, downloadMedia, clea
             </div>
             <span className={styles.selectionInfoText}>1 selected</span>
           </div>
-          <div className={styles.actionBtn} >
+          <div onClick={openRenameModal} className={styles.actionBtn} >
             <MaterialSymbolIcon title='Edit' />
           </div>
           <div className={styles.actionBtn} onClick={downloadMedia}>

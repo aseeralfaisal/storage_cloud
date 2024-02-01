@@ -5,10 +5,14 @@ import styles from './auth.module.css';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import Api from 'AxiosInterceptor';
+import { useAppDispatch } from '../store/hooks';
+import { setProfileImgSrc } from '../store/slice';
 
 const AuthPage: React.FC = () => {
+  const dispatch = useAppDispatch();
   const router = useRouter();
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [isRegisterMode, setRegisterMode] = useState(false);
 
@@ -28,11 +32,13 @@ const AuthPage: React.FC = () => {
         password
       });
 
-      const { accessToken, refreshToken, userId } = response.data
+      const { accessToken, refreshToken, userId, userName, profilePicture } = response.data
       Cookies.set('accessToken', accessToken);
       Cookies.set('refreshToken', refreshToken);
       Cookies.set('userId', userId);
       Cookies.set('email', email)
+      Cookies.set('userName', userName)
+      dispatch(setProfileImgSrc(profilePicture))
 
       if (response.status === 200) {
         router.push(`/view/0`);
@@ -50,6 +56,7 @@ const AuthPage: React.FC = () => {
     try {
       const response = await Api.post("create_user", {
         email,
+        name,
         password,
       });
       if (response.status === 200) {
@@ -80,6 +87,15 @@ const AuthPage: React.FC = () => {
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
+          {isRegisterMode && <div className={styles.inputContainer}>
+            <input
+              type="text"
+              className={styles.input}
+              placeholder="Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>}
           <div className={styles.inputContainer}>
             <input
               type="password"

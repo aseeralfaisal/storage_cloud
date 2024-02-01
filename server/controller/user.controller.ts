@@ -15,7 +15,7 @@ const createUser = async (req: Request, res: Response) => {
     const hashPass = await bcrypt.hash(password, salt)
     const create = await prisma.user.create({
       data: {
-        name: name ? name : "",
+        name,
         password: hashPass,
         email,
       },
@@ -50,7 +50,7 @@ const loginUser = async (req: Request, res: Response) => {
     const accessToken = authController.generateAccessToken(email);
     const refreshToken = authController.generateRefreshToken(email);
 
-    res.json({ userId: user.id, accessToken, refreshToken });
+    res.json({ userId: user.id, userName: user.name, profilePicture: user.profilePicture, accessToken, refreshToken });
   } catch (error) {
     res.status(500).json({ error: 'Failed to log in' });
   }
@@ -73,5 +73,28 @@ const userInfo = async (req: Request, res: Response) => {
   }
 };
 
+const updateUserInfo = async (req: Request, res: Response) => {
+  try {
+    const { id, name, profilePicture } = req.body;
+    if (!id) throw Error("id not found");
+    const updateUser = await prisma.user.update({
+      where: {
+        id
+      },
+      data: {
+        name,
+        profilePicture
+      }
+    })
 
-export default { createUser, loginUser, userInfo };
+    res.json(updateUser);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+
+
+
+export default { createUser, loginUser, userInfo, updateUserInfo };

@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Breadcrumb, Devider, ListItem, List, FileView, FolderView, Properties, Modal, Navbar, Topbar } from '@components'
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
-import { setActionValue, setFolderId, setCurrentSelection, setIsTookAction, setFolders } from '@/app/store/slice';
+import { setActionValue, setFolderId, setCurrentSelection, setIsTookAction, setFolders, setCurrrentBreadcrumbFolder } from '@/app/store/slice';
 import Api from 'AxiosInterceptor';
 import { useParams, useRouter } from 'next/navigation';
 import useClickOutside from '@/app/hooks/useClickOutside';
@@ -32,14 +32,11 @@ const View: React.FC = () => {
   const fileRef = useRef(null);
 
   useClickOutside(contextMenuRef, () => closeContextMenu());
-
-  useClickOutside(folderRef, () => {
-    dispatch(setCurrentSelection({ type: null, id: null }))
-  });
-
-  useClickOutside(fileRef, () => {
-    dispatch(setCurrentSelection({ type: null, id: null }))
-  });
+  [folderRef, fileRef].forEach((ref) => {
+    useClickOutside(ref, () => {
+      dispatch(setCurrentSelection({ type: null, id: null }))
+    });
+  })
 
   const onDragStart = (event: React.MouseEvent, index: number, id?: number, name?: string) => {
     if (!id || !name) return;
@@ -48,7 +45,6 @@ const View: React.FC = () => {
     setStartId(id);
     setStartName(name)
     const draggedItemType = event.currentTarget.getAttribute("data-attr");
-    // setting drag type as folder or file
     setDraggedItemType(draggedItemType)
   }
 
@@ -73,8 +69,6 @@ const View: React.FC = () => {
       directoryId: +item.id,
       parentId: +item.id
     }
-    console.log("dropped")
-    console.log(postData)
     const dropType = event.currentTarget.getAttribute("data-attr");
 
     if (dropType === 'folder' && draggedItemType === 'folder') {
@@ -88,7 +82,6 @@ const View: React.FC = () => {
         console.log(res.data)
       }
     }
-
     dispatch(setIsTookAction(!isTookAction));
     setStartIndex(null)
   };
@@ -124,9 +117,9 @@ const View: React.FC = () => {
 
       let folderList
       if (+params.id === 0) {
-        folderList = folders.data
+        folderList = folders?.data
       } else {
-        folderList = folders.data[0].children || []
+        folderList = folders?.data[0].children || []
       }
       dispatch(setFolders(folderList));
       setFiles(files.data)
@@ -155,6 +148,7 @@ const View: React.FC = () => {
   const handleDoubleClick = (item: any) => {
     dispatch(setFolderId(item.id));
     dispatch(setActionValue({ type: item.type, name: item.name, id: item.id }));
+    dispatch(setCurrrentBreadcrumbFolder(item.name))
     router.push(`${item.id}`)
   }
 

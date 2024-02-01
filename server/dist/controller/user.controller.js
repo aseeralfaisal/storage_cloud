@@ -20,7 +20,7 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const hashPass = yield bcrypt.hash(password, salt);
         const create = yield prisma.user.create({
             data: {
-                name: name ? name : "",
+                name,
                 password: hashPass,
                 email,
             },
@@ -48,7 +48,7 @@ const loginUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         }
         const accessToken = authController.generateAccessToken(email);
         const refreshToken = authController.generateRefreshToken(email);
-        res.json({ userId: user.id, accessToken, refreshToken });
+        res.json({ userId: user.id, userName: user.name, profilePicture: user.profilePicture, accessToken, refreshToken });
     }
     catch (error) {
         res.status(500).json({ error: 'Failed to log in' });
@@ -72,4 +72,25 @@ const userInfo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         res.status(500).json({ error: "Internal server error" });
     }
 });
-export default { createUser, loginUser, userInfo };
+const updateUserInfo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id, name, profilePicture } = req.body;
+        if (!id)
+            throw Error("id not found");
+        const updateUser = yield prisma.user.update({
+            where: {
+                id
+            },
+            data: {
+                name,
+                profilePicture
+            }
+        });
+        res.json(updateUser);
+    }
+    catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+export default { createUser, loginUser, userInfo, updateUserInfo };

@@ -16,3 +16,15 @@
   color: #444746;
   font-family: 'Open sans', sans-serif;
 }
+
+.profilePictureContainer {
+  border-radius: 50%;
+  border: 1px solid transparent;
+  cursor: pointer;
+  padding: 8px;
+  z-index: 2;
+}
+
+.profilePictureContainer:hover {
+  background: rgba(68, 71, 70, .1);
+}

@@ -1,36 +1,50 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
-import { setIsModal, setIsTookAction } from '@/app/store/slice';
+import { setIsModal, setIsTookAction, setModalInputValue } from '@/app/store/slice';
 import { useParams } from 'next/navigation';
 import Api from 'AxiosInterceptor';
 import Cookies from 'js-cookie';
-import { ModalProps } from './Modal.type';
 
-const Modal: React.FC<ModalProps> = () => {
+const Modal: React.FC = () => {
   const params = useParams();
-  const [inputValue, setInputValue] = useState("Untitled folder");
   const dispatch = useAppDispatch();
-  const { isTookAction, isModal, folderId } = useAppSelector(state => state.slice)
+  const { isTookAction, isModal, actionValue, modalType, modalInputValue } = useAppSelector(state => state.slice)
 
   const createFolder = async () => {
     try {
       const userIdString = Cookies.get("userId") as string;
       const userId = parseInt(userIdString);
       const paramsIdString = params.id as string;
-      // const directoryId = parseInt(paramsIdString)
-      const name = inputValue
+      const directoryId = parseInt(paramsIdString)
+      const name = modalInputValue
       if (!userId) return;
 
-      await Api.post("/create_folder", {
-        name,
-        userId,
-        directoryId: folderId,
-        path: paramsIdString,
-        parentId: folderId === 0 ? null : folderId
-      })
-      dispatch(setIsModal(false))
-      dispatch(setIsTookAction(!isTookAction))
+      if (modalType === 'create') {
+        await Api.post("/create_folder", {
+          name,
+          userId,
+          directoryId,
+          path: paramsIdString,
+          parentId: +params.id === 0 ? null : +params.id
+        })
+        dispatch(setIsModal(false))
+        dispatch(setIsTookAction(!isTookAction))
+      } else if (modalType === 'update') {
+        if (actionValue.type === 'file') {
+          await Api.post("/update_file", {
+            id: actionValue.id,
+            name,
+          })
+        } else {
+          await Api.post("/update_folder", {
+            id: actionValue.id,
+            name,
+          })
+        }
+        dispatch(setIsModal(false))
+        dispatch(setIsTookAction(!isTookAction))
+      }
     } catch (error) {
       console.log(error)
     }
@@ -55,11 +69,11 @@ const Modal: React.FC<ModalProps> = () => {
       }}>
         <div style={{ margin: 25 }}>
           <span style={{ fontSize: 26 }}>New folder</span>
-          <input value={inputValue} onChange={(e) => setInputValue(e.target.value)} style={{ marginBlock: 20, padding: "10px 20px", width: '100%', fontSize: 14 }} />
+          <input value={modalInputValue} onChange={(e) => dispatch(setModalInputValue(e.target.value))} style={{ marginBlock: 20, padding: "10px 20px", width: '100%', fontSize: 14 }} />
         </div>
         <div style={{ display: 'flex', gap: 20, justifyContent: 'flex-end', marginInline: 30 }}>
           <span style={{ color: "#115bd1", fontSize: 14, fontWeight: 600, cursor: 'pointer' }} onClick={() => dispatch(setIsModal(false))}>Cancel</span>
-          <span style={{ color: "#115bd1", fontSize: 14, fontWeight: 600, cursor: 'pointer' }} onClick={createFolder}>Create</span>
+          <span style={{ color: "#115bd1", fontSize: 14, fontWeight: 600, cursor: 'pointer' }} onClick={createFolder}> {modalType === 'update' ? "OK" : "Create"}</span>
         </div>
       </div>
     </div >

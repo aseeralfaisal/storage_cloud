@@ -25,7 +25,6 @@ const Navbar: React.FC = () => {
 
   const totalSizeMB = (parseInt((usageSize as any)?.totalSizeMB) || 0).toFixed(2);
 
-
   return (
     <div className={styles.navbarWrapper}>
       <div style={{ margin: "18px 2px" }} onClick={openContextMenu}>
@@ -34,7 +33,6 @@ const Navbar: React.FC = () => {
       <div ref={contextMenuRef}>
         <ContextMenu />
       </div>
-
 
       <div className={styles.navItem}>
         <MaterialSymbolIcon title="Home" />
