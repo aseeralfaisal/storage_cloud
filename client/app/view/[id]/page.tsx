@@ -115,13 +115,7 @@ const View: React.FC = () => {
       const folders = await Api.get(folderApiUrl)
       const files = await Api.get(fileApiUrl)
 
-      let folderList
-      if (+params.id === 0) {
-        folderList = folders?.data
-      } else {
-        folderList = folders?.data[0].children || []
-      }
-      dispatch(setFolders(folderList));
+      dispatch(setFolders(folders.data));
       setFiles(files.data)
     })()
   }, [params.id, isTookAction, router])
@@ -210,8 +204,8 @@ const View: React.FC = () => {
       )}
       <Topbar searchValue={searchValue} setSearchValue={setSearchValue} />
       <Navbar />
-      <UploadProgress />
 
+      <UploadProgress />
       {/* @ts-ignore */}
       <Modal visible={isModalVisible} />
       <div style={{ marginBlock: 30, marginLeft: 280, marginRight: 30 }}>
@@ -226,6 +220,22 @@ const View: React.FC = () => {
             display: "grid", gap: 16, gridTemplateColumns: "repeat(auto-fill, minmax(220px,1fr))",
             transition: 'ease-out 0.3s all'
           }}>
+          {folders.length === 0 && files.length === 0 &&
+
+            <div style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              textAlign: 'center',
+              zIndex: 999, // Adjust the z-index as needed
+            }}>
+              <div style={{ display: "grid", justifyContent: 'center' }}>
+                <img src="https://ssl.gstatic.com/docs/doclist/images/empty_state_empty_folder.svg" width="300px" height="300px" alt="" />
+                <span style={{ fontSize: 16, color: "#999", textAlign: 'center' }}>Upload to view files here</span>
+              </div>
+            </div>
+          }
           {folders && folders
             ?.filter((item: { name: string, id: number }) => item?.name?.toLowerCase().includes(searchValue?.toLowerCase()))
             ?.map((item: { name: string, id: number }, index: number) => {

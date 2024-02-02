@@ -15,6 +15,9 @@ export const Slice = createSlice({
     currentBreadcrumbFolder: null,
     userMenuVisible: false,
     profileImgSrc: null,
+    uploadFileName: "File",
+    uploadProgressVisible: false,
+    isUploading: false,
     breadCrumbList: [""]
   },
   reducers: {
@@ -54,6 +57,15 @@ export const Slice = createSlice({
     setProfileImgSrc: (state, action) => {
       state.profileImgSrc = action.payload
     },
+    setUploadFileName: (state, action) => {
+      state.uploadFileName = action.payload
+    },
+    setUploadProgressVisible: (state, action) => {
+      state.uploadProgressVisible = action.payload
+    },
+    setIsUploading: (state, action) => {
+      state.isUploading = action.payload
+    },
     setBreadCrumbList: (state, action) => {
       if (action.payload === null) return
       state.breadCrumbList = Array.from(new Set([...state.breadCrumbList, action.payload]));
@@ -74,6 +86,9 @@ export const {
   setModalType,
   setModalInputValue,
   toggleUserMenu,
-  setProfileImgSrc
+  setProfileImgSrc,
+  setUploadFileName,
+  setUploadProgressVisible,
+  setIsUploading
 } = Slice.actions
 

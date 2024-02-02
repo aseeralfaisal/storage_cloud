@@ -8,7 +8,7 @@ import styles from './UserMenu.module.css'
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import useClickOutside from '@/app/hooks/useClickOutside';
 import { setProfileImgSrc, toggleUserMenu } from '@/app/store/slice';
-import Api from '@/app/service/Api.interceptor';
+import Api from 'AxiosInterceptor';
 
 const UserMenu: React.FC = () => {
   const router = useRouter();

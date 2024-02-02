@@ -2,7 +2,7 @@ import React, { useRef } from 'react'
 import { ListProp } from './List.type'
 import styles from './List.module.css'
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
-import { setIsContextMenu, setIsModal, setIsTookAction } from '@/app/store/slice';
+import { setIsContextMenu, setIsModal, setIsTookAction, setIsUploading, setUploadFileName, setUploadProgressVisible } from '@/app/store/slice';
 import Api from "AxiosInterceptor";
 import Cookies from 'js-cookie';
 import { useParams } from 'next/navigation';
@@ -16,7 +16,11 @@ const List: React.FC<ListProp> = ({ children, isVisible }) => {
   const onFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
       const selectedFile = event.target.files?.[0];
+      console.log(selectedFile)
       if (!selectedFile) return
+      dispatch(setUploadProgressVisible(true));
+      dispatch(setUploadFileName(selectedFile.name));
+      dispatch(setIsUploading(true));
       const formData = new FormData();
       formData.append('file', selectedFile);
 
@@ -39,6 +43,8 @@ const List: React.FC<ListProp> = ({ children, isVisible }) => {
         directoryId: +params?.id
       })
       if (res.status === 200) {
+        dispatch(setUploadFileName("File"));
+        dispatch(setIsUploading(false));
         dispatch(setIsTookAction(!isTookAction));
       }
     } catch (error) {
