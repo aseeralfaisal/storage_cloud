@@ -11,7 +11,7 @@ const port = process.env.PORT || 5100;
 const app = express();
 app.use(express.json());
 app.use(fileUpload());
-app.use(cors({ origin: process.env.BASE_URL }));
+app.use(cors({ origin: "*" }));
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something went wrong!');

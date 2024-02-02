@@ -47,7 +47,6 @@ const AuthPage: React.FC = () => {
       return;
     } catch (error) {
       console.error(error)
-      router.push('/auth')
     }
   }
 

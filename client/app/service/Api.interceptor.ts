@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const baseURL = process.env.BASE_URL;
+const baseURL = process.env.BASE_URL || "https://storage-cloud-server.onrender.com";
 
 const Api = axios.create({ baseURL });
 
