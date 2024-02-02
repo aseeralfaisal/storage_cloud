@@ -25,7 +25,7 @@ const AuthPage: React.FC = () => {
     setRegisterMode(false);
   };
 
-  const handleLogin = async (event: React.MouseEvent<HTMLFormElement>) => {
+  const handleLogin = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.stopPropagation();
     try {
@@ -51,13 +51,13 @@ const AuthPage: React.FC = () => {
       }
 
     } catch (error: any) {
-      const errorResponse: any = error?.response
+      const errorResponse = error?.response
       if (!errorResponse) return setErrorMsg("User or Password Invalid")
       setErrorMsg(errorResponse?.data.error)
     }
   }
 
-  const handleRegister = async (event: React.MouseEvent<HTMLFormElement>) => {
+  const handleRegister = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     event.stopPropagation();
     try {
@@ -69,7 +69,7 @@ const AuthPage: React.FC = () => {
       if (response.status === 200) {
         setRegisterMode(false)
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error?.response)
       router.push('/auth')
     }
