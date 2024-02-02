@@ -13,6 +13,7 @@ import Pill from "./Pill/Pill";
 import Properties from "./Properties/Properties";
 import Topbar from "./Topbar/Topbar";
 import UserMenu from "./UserMenu/UserMenu";
+import UploadProgress from "./UploadProgress/UploadProgress";
 
 export {
   Breadcrumb,
@@ -29,6 +30,7 @@ export {
   Pill,
   Properties,
   Topbar,
-  UserMenu
+  UserMenu,
+  UploadProgress
 };
 

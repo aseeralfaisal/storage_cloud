@@ -31,7 +31,7 @@ const Topbar: React.FC<TopbarProps> = ({ searchValue, setSearchValue }) => {
           {
             profileImgSrc ?
               <div className={styles.profilePictureContainer}>
-                <img src={profileImgSrc} style={{ width: 26, height: 26, objectFit: 'cover', borderRadius: '50% ' }} />
+                <img src={profileImgSrc} style={{ width: 28, height: 28, objectFit: 'cover', borderRadius: '50% ' }} />
               </div>
               :
               <>

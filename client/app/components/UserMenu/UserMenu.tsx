@@ -16,7 +16,7 @@ const UserMenu: React.FC = () => {
   const { userMenuVisible, profileImgSrc } = useAppSelector((state) => state.slice)
   const userEmail = Cookies.get('email')
   const userMenuRef = useRef(null);
-  const profileUploadRef = useRef(null);
+  const profileUploadRef = useRef<any>(null);
 
   const signOut = () => {
     ['refreshToken', 'accessToken', 'userId', 'userName'].forEach((cookie) => {
@@ -50,6 +50,7 @@ const UserMenu: React.FC = () => {
       }
 
       const userId = Cookies.get('userId')
+      if (!userId) return;
       const update = await Api.post("/update_user_info", {
         id: +userId,
         profilePicture
@@ -74,7 +75,7 @@ const UserMenu: React.FC = () => {
           <MaterialSymbolIcon title='close' enableHover />
         </div>
       </div>
-      <div style={{ marginTop: 20 }} onClick={() => profileUploadRef.current.click()}>
+      <div style={{ marginTop: 20 }} onClick={() => profileUploadRef?.current?.click()}>
         <input ref={profileUploadRef} type='file' style={{ display: 'none' }} onChange={handleUploadProfile} />
         {profileImgSrc ?
           <img src={profileImgSrc} style={{ width: 100, height: 100, objectFit: 'cover', borderRadius: '50% ' }} />

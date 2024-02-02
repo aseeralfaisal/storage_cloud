@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react'
-import { Breadcrumb, Devider, ListItem, List, FileView, FolderView, Properties, Modal, Navbar, Topbar } from '@components'
 import { useAppDispatch, useAppSelector } from '@/app/store/hooks';
 import { setActionValue, setFolderId, setCurrentSelection, setIsTookAction, setFolders, setCurrrentBreadcrumbFolder } from '@/app/store/slice';
 import Api from 'AxiosInterceptor';
 import { useParams, useRouter } from 'next/navigation';
 import useClickOutside from '@/app/hooks/useClickOutside';
 import Cookies from 'js-cookie';
+import { Breadcrumb, Devider, ListItem, List, FileView, FolderView, Properties, Modal, Navbar, Topbar, UploadProgress } from '@components'
 
 const View: React.FC = () => {
   const params = useParams();
@@ -193,7 +193,6 @@ const View: React.FC = () => {
           }}
           onClick={closeContextMenu}
         >
-
           <List isVisible={contextMenuVisible} >
             <div onClick={() => downloadMedia(downloadLink)}>
               <ListItem iconTitle='download' text='Download' type="file_upload" />
@@ -211,6 +210,7 @@ const View: React.FC = () => {
       )}
       <Topbar searchValue={searchValue} setSearchValue={setSearchValue} />
       <Navbar />
+      <UploadProgress />
 
       {/* @ts-ignore */}
       <Modal visible={isModalVisible} />
