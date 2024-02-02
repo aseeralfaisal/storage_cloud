@@ -115,7 +115,13 @@ const View: React.FC = () => {
       const folders = await Api.get(folderApiUrl)
       const files = await Api.get(fileApiUrl)
 
-      dispatch(setFolders(folders.data));
+      let folderList
+      if (+params.id === 0) {
+        folderList = folders?.data
+      } else {
+        folderList = folders?.data[0].children || []
+      }
+      dispatch(setFolders(folderList));
       setFiles(files.data)
     })()
   }, [params.id, isTookAction, router])
