@@ -3,7 +3,7 @@ import Cookies from 'js-cookie';
 
 const baseURL = process.env.BASE_URL;
 
-const Api = axios.create({ baseURL: "http://localhost:5000" });
+const Api = axios.create({ baseURL });
 
 export const signOut = () => {
   ['refreshToken', 'accessToken', 'userId', 'userName'].forEach((cookie) => {
