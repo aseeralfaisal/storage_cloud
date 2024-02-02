@@ -51,7 +51,7 @@ const AuthPage: React.FC = () => {
       }
 
     } catch (error) {
-      const errorResponse = error.response
+      const errorResponse = error?.response as any
       if (!errorResponse) return setErrorMsg("User or Password Invalid")
       setErrorMsg(errorResponse?.data.error)
     }
