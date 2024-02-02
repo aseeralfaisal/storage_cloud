@@ -36,36 +36,6 @@ const createFolder = async (req: Request, res: Response) => {
   }
 };
 
-const getFolders = async (req: Request, res: Response) => {
-  try {
-    const { directoryId, userId } = req.query
-    if (!directoryId || !userId) return;
-    const userIdInt = +userId as number;
-    const directoryIdInt = +directoryId as number;
-
-    let resp;
-    if (directoryId) {
-      resp = await prisma.folder.findMany({
-        where: {
-          directoryId: directoryIdInt,
-          userId: userIdInt
-        },
-
-      });
-    } else {
-      resp = await prisma.folder.findMany({
-        where: {
-          userId: userIdInt
-        },
-      });
-    }
-
-    res.json(resp);
-
-  } catch (error) {
-    res.status(404).json({ error });
-  }
-};
 const deleteFolder = async (req: Request, res: Response) => {
   try {
     const id = req.body.id;
@@ -124,23 +94,6 @@ const updateFolder = async (req: Request, res: Response) => {
   }
 };
 
-const getAllFolders = async (req: Request, res: Response) => {
-  try {
-    const userIdString = req.query.userId as string;
-    const userId = parseInt(userIdString);
-
-    const folders = await prisma.folder.findMany({
-      where: {
-        userId,
-      },
-      include: { children: true },
-    });
-
-    res.json(folders);
-  } catch (error) {
-    console.log(error)
-  }
-}
 
 const getFoldersBasedOnPath = async (req: Request, res: Response) => {
   try {
@@ -188,9 +141,7 @@ const getFoldersBasedOnPath = async (req: Request, res: Response) => {
 
 export default {
   createFolder,
-  getFolders,
   getFoldersBasedOnPath,
   deleteFolder,
   updateFolder,
-  getAllFolders
 }

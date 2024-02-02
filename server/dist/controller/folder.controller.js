@@ -37,35 +37,6 @@ const createFolder = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         res.status(500).json({ error: "Internal server error" });
     }
 });
-const getFolders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const { directoryId, userId } = req.query;
-        if (!directoryId || !userId)
-            return;
-        const userIdInt = +userId;
-        const directoryIdInt = +directoryId;
-        let resp;
-        if (directoryId) {
-            resp = yield prisma.folder.findMany({
-                where: {
-                    directoryId: directoryIdInt,
-                    userId: userIdInt
-                },
-            });
-        }
-        else {
-            resp = yield prisma.folder.findMany({
-                where: {
-                    userId: userIdInt
-                },
-            });
-        }
-        res.json(resp);
-    }
-    catch (error) {
-        res.status(404).json({ error });
-    }
-});
 const deleteFolder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const id = req.body.id;
@@ -116,22 +87,6 @@ const updateFolder = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         res.status(500).json({ error });
     }
 });
-const getAllFolders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const userIdString = req.query.userId;
-        const userId = parseInt(userIdString);
-        const folders = yield prisma.folder.findMany({
-            where: {
-                userId,
-            },
-            include: { children: true },
-        });
-        res.json(folders);
-    }
-    catch (error) {
-        console.log(error);
-    }
-});
 const getFoldersBasedOnPath = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const folderIdString = req.query.folderId;
@@ -173,9 +128,7 @@ const getFoldersBasedOnPath = (req, res) => __awaiter(void 0, void 0, void 0, fu
 });
 export default {
     createFolder,
-    getFolders,
     getFoldersBasedOnPath,
     deleteFolder,
     updateFolder,
-    getAllFolders
 };

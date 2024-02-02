@@ -14,7 +14,7 @@ const app = express();
 
 app.use(express.json());
 app.use(fileUpload());
-app.use(cors({ origin: "*" }));
+app.use(cors({ origin: "http://localhost:3000" }));
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err.stack);
   res.status(500).send('Something went wrong!');
