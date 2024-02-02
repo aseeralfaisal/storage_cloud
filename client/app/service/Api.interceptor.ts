@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const Api = axios.create({ baseURL: process?.env?.NEXT_PUBLIC_BASE_URL });
+const Api = axios.create({ baseURL: "https://storage-cloud-server.onrender.com" });
 
 const requiresAuthentication = (url: string) => {
   const authenticatedRoutes = ['/get_folder_path', '/get_file'];
